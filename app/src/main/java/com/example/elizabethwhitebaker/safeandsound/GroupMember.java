@@ -1,20 +1,22 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-public class GroupMember {
+class GroupMember {
     private int groupMemberID;
     private int groupID;
     private int memberID;
 
-    public GroupMember() {}
+    GroupMember() {}
 
-    public int getGroupMemberID() {
+    int getGroupMemberID() {
         return groupMemberID;
     }
-    public void setGroupMemberID(int groupMemberID) { this.groupMemberID = groupMemberID; }
-    public int getGroupID() {
+    void setGroupMemberID(int groupMemberID) { this.groupMemberID = groupMemberID; }
+    int getGroupID() {
         return groupID;
     }
-    public int getMemberID() {
+    int getMemberID() {
         return memberID;
     }
+    void setGroupID(int groupID) { this.groupID = groupID; }
+    void setMemberID(int memberID) { this.memberID = memberID; }
 }

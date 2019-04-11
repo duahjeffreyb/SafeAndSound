@@ -1,48 +1,61 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
 import android.graphics.Bitmap;
-import android.media.Image;
+import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
 
-public class Initiator {
+class Initiator {
     private int initiatorID;
     private String firstName;
     private String lastName;
     private String username;
     private Bitmap picture;
     private String phoneNumber;
+    private String password;
 
-    public Initiator() {}
-    public Initiator(int id, String first, String last, String user, Bitmap pic, String phone) {
-        initiatorID = id;
+    Initiator() {}
+    Initiator(String first, String last, String user, Bitmap pic, String phone, String pass) {
         firstName = first;
         lastName = last;
         username = user;
         picture = pic;
         phoneNumber = phone;
+        password = pass;
     }
 
-    public int getInitiatorID() { return initiatorID; }
-    public void setInitiatorID(int initiatorID) { this.initiatorID = initiatorID; }
-    public String getFirstName() {
+    int getInitiatorID() { return initiatorID; }
+    void setInitiatorID(int initiatorID) { this.initiatorID = initiatorID; }
+    String getFirstName() {
         return firstName;
     }
-    public String getLastName() {
+    void setFirstName(String firstName) { this.firstName = firstName; }
+    void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    void setUsername(String username) {
+        this.username = username;
+    }
+    void setBytes(byte[] bytes) { picture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length); }
+    void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    String getPassword() { return password; }
+    void setPassword(String password) {
+        this.password = password;
+    }
+    String getLastName() {
         return lastName;
     }
-    public String getUsername() {
+    String getUsername() {
         return username;
     }
-    public Bitmap getPicture() {
-        return picture;
+    byte[] getBytes() {
+        ByteArrayOutputStream b = new ByteArrayOutputStream();
+        picture.compress(Bitmap.CompressFormat.PNG, 100, b);
+        return b.toByteArray();
     }
-    public byte[] getBytes() {
-        ByteArrayOutputStream s = new ByteArrayOutputStream();
-        picture.compress(Bitmap.CompressFormat.JPEG, 0, s);
-        return s.toByteArray();
-    }
-    public String getPhoneNumber() {
+    String getPhoneNumber() {
         return phoneNumber;
     }
 }

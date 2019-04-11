@@ -8,7 +8,7 @@ public class Member {
     private String reply;
     private String comments;
 
-    public Member() {}
+    Member() {}
     public Member(int id, String first, String last, String phone, String re, String com) {
         memberID = id;
         firstName = first;
@@ -18,23 +18,28 @@ public class Member {
         comments = com;
     }
 
-    public int getMemberID() {
+    int getMemberID() {
         return memberID;
     }
-    public void setMemberID(int memberID) { this.memberID = memberID; }
-    public String getFirstName() {
+    void setMemberID(int memberID) { this.memberID = memberID; }
+    String getFirstName() {
         return firstName;
     }
-    public String getLastName() {
+    String getLastName() {
         return lastName;
     }
-    public String getPhoneNumber() {
+    String getPhoneNumber() {
         return phoneNumber;
     }
-    public String getReply() {
+    String getReply() {
         return reply;
     }
-    public String getComments() {
+    String getComments() {
         return comments;
     }
+    void setFirstName(String firstName) { this.firstName = firstName; }
+    void setLastName(String lastName) { this.lastName = lastName; }
+    void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    void setReply(String reply) { this.reply = reply; }
+    void setComments(String comments) { this.comments = comments; }
 }
