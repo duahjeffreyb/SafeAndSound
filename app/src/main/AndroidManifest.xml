@@ -27,7 +27,9 @@
         </activity>
         <activity android:name=".HomeScreenActivity" android:launchMode="singleTask">
         </activity>
-        <activity android:name=".BuildTeamActivity">
+        <activity android:name=".BuildGroupActivity">
+        </activity>
+        <activity android:name=".ChangeGroupActivity">
         </activity>
         <activity android:name=".CheckEventActivity">
         </activity>

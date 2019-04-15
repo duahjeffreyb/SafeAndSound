@@ -1,88 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_org"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:id="@+id/welcomeTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Welcome"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTextView2"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/buildGroupButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/colorPrimaryDark"
+        android:text="@string/welcome_org_text"
+        android:layout_marginBottom="69dp"
+        android:layout_marginTop="69dp"/>
 
-    <Button
-        android:id="@+id/buildGroupButton"
-        android:layout_width="wrap_content"
+    <TextView
         android:layout_height="wrap_content"
-        android:text="Build A Group"
-        app:layout_constraintBaseline_toBaselineOf="@+id/changeGroupButton"
-        app:layout_constraintEnd_toEndOf="@+id/createEventButton"
-        app:layout_constraintStart_toStartOf="@+id/createEventButton" />
-
-    <Button
-        android:id="@+id/checkEventButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:text="Check An Event"
-        app:layout_constraintBottom_toTopOf="@+id/signOutButton"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/createEventButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="Create An Event"
-        app:layout_constraintBaseline_toBaselineOf="@+id/checkEventButton"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/sendMsgsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:text="Send Messages"
-        app:layout_constraintBottom_toTopOf="@+id/checkEventButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buildGroupButton" />
-
-    <Button
-        android:id="@+id/signOutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="Sign Out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/changeGroupButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="Change A Group"
+        android:id="@+id/welcomeTextView2"
+        app:layout_constraintStart_toStartOf="@+id/buildGroupButton"
         app:layout_constraintBottom_toTopOf="@+id/sendMsgsButton"
-        app:layout_constraintEnd_toEndOf="@+id/checkEventButton"
-        app:layout_constraintStart_toStartOf="@+id/checkEventButton" />
+        android:textSize="24sp"
+        android:textColor="@color/colorPrimary"
+        android:text="@string/working_groups_text"
+        android:layout_marginBottom="96dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView"
+        android:layout_marginStart="21dp"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/welcomeTextView3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/checkEventButton"
+        android:textSize="24sp"
+        android:textColor="@color/colorPrimary"
+        android:text="@string/working_incidents_text"
+        android:layout_marginBottom="25dp"
+        app:layout_constraintTop_toBottomOf="@+id/sendMsgsButton"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/changeGroupButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/chg_grp_text"
+        app:layout_constraintStart_toEndOf="@+id/buildGroupButton"
+        app:layout_constraintBaseline_toBaselineOf="@+id/buildGroupButton"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/buildGroupButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/bld_grp_text"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView2"
+        android:layout_marginStart="1dp"
+        app:layout_constraintEnd_toStartOf="@+id/changeGroupButton"
+        android:layout_marginEnd="1dp"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/checkEventButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/signOutButton"
+        android:text="@string/chk_evnt_text"
+        android:layout_marginBottom="92dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView3"
+        app:layout_constraintStart_toEndOf="@+id/createEventButton"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/createEventButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/crt_evnt_text"
+        android:layout_marginTop="25dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView3"
+        android:layout_marginStart="1dp"
+        app:layout_constraintEnd_toStartOf="@+id/checkEventButton"/>
+
+    <Button
+        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:id="@+id/sendMsgsButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTextView3"
+        android:text="@string/send_grp_msgs_text"
+        android:layout_marginBottom="48dp"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextView2"/>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/signOutButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/signout"
+        android:layout_marginBottom="92dp"
+        app:layout_constraintTop_toBottomOf="@+id/checkEventButton"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

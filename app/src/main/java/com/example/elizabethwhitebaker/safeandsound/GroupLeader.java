@@ -6,6 +6,10 @@ class GroupLeader {
     private int groupID;
 
     GroupLeader() {}
+    GroupLeader(int initiatorID, int groupID) {
+        this.initiatorID = initiatorID;
+        this.groupID = groupID;
+    }
 
     int getGroupLeaderID() { return groupLeaderID; }
     void setGroupLeaderID(int groupLeaderID) { this.groupLeaderID = groupLeaderID; }

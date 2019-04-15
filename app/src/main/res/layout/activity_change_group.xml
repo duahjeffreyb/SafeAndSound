@@ -76,7 +76,7 @@
         app:layout_constraintTop_toTopOf="@+id/chooseMemberTextView" />
 
     <ScrollView
-        android:id="@+id/scrollView3"
+        android:id="@+id/membersScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -92,10 +92,10 @@
             android:id="@+id/scrollViewConstraintLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/scrollView3"
-            app:layout_constraintEnd_toEndOf="@+id/scrollView3"
-            app:layout_constraintStart_toStartOf="@+id/scrollView3"
-            app:layout_constraintTop_toTopOf="@+id/scrollView3">
+            app:layout_constraintBottom_toBottomOf="@+id/membersScrollView"
+            app:layout_constraintEnd_toEndOf="@+id/membersScrollView"
+            app:layout_constraintStart_toStartOf="@+id/membersScrollView"
+            app:layout_constraintTop_toTopOf="@+id/membersScrollView">
 
             <Button
                 android:id="@+id/deleteCheckedButton"

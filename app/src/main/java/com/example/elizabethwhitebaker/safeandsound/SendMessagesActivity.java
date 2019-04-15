@@ -35,6 +35,8 @@ public class SendMessagesActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_messages);
 
+        checkBoxes = new ArrayList<>();
+
         groupSpinner = findViewById(R.id.groupSpinner);
 
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
@@ -59,7 +61,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                i.putExtra("senderClass", "SendMessagesActivity");
+                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
                 startActivity(i);
             }
         });
@@ -151,7 +153,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 }
                 Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                i.putExtra("senderClass", "SendMessagesActivity");
+                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
                 startActivity(i);
             }
         });
@@ -168,16 +170,10 @@ public class SendMessagesActivity extends AppCompatActivity implements
 
     private void loadSpinnerData() {
         handler = new DBHandler(getApplicationContext());
-        int init = 1;
-        int initID = getIntent().getIntExtra("initID", init);
-        ArrayList<GroupLeader> groups = handler.findHandlerGroupLeader(initID);
+        ArrayList<Group> groups = handler.getAllGroups();
         ArrayList<String> groupNames = new ArrayList<>();
-        for(GroupLeader gL : groups) {
-            int groupID = gL.getGroupID();
-            Group g = handler.findHandlerGroup(groupID);
+        for(Group g : groups)
             groupNames.add(g.getGroupName());
-        }
-
         ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, groupNames);
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -204,13 +200,14 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 R.id.scrollViewConstraintLayout, ConstraintSet.RIGHT, 0);
         constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
                 R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 0);
-        constraintSet.clear(R.id.deleteCheckedButton, ConstraintSet.TOP);
         constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
                 R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
         if(checkBoxes.size() == 0) {
+            constraintSet.clear(R.id.deleteCheckedButton, ConstraintSet.TOP);
             constraintSet.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
         } else {
+            constraintSet.clear(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP);
             constraintSet.connect(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP,
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
         }

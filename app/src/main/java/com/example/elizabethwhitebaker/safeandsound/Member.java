@@ -9,13 +9,10 @@ public class Member {
     private String comments;
 
     Member() {}
-    public Member(int id, String first, String last, String phone, String re, String com) {
-        memberID = id;
+    public Member(String first, String last, String phone) {
         firstName = first;
         lastName = last;
         phoneNumber = phone;
-        reply = re;
-        comments = com;
     }
 
     int getMemberID() {

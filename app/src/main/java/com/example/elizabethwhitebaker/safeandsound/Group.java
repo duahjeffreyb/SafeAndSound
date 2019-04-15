@@ -5,8 +5,7 @@ public class Group {
     private String groupName;
 
     Group() {}
-    public Group(int id, String name) {
-        groupID = id;
+    public Group(String name) {
         groupName = name;
     }
 

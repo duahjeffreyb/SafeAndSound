@@ -6,6 +6,10 @@ class GroupMember {
     private int memberID;
 
     GroupMember() {}
+    GroupMember(int groupID, int memberID) {
+        this.groupID = groupID;
+        this.memberID = memberID;
+    }
 
     int getGroupMemberID() {
         return groupMemberID;

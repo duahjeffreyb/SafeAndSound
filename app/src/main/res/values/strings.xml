@@ -41,4 +41,16 @@
     <string name="idk">Please pick at least one group to send a message to.</string>
     <string name="pick_the_groups_that_will_be_affected_by_this_event">Pick the groups that will be affected by this event:</string>
     <string name="event_description">Event Description</string>
+    <string name="sign_up_text">If you are new to Safe and Sound, use the Sign Up button to create your account.</string>
+    <string name="sign_in_text">If you are a returning user, use the Sign In button to access your groups and manage incidents.</string>
+    <string name="welcome_org_text">Welcome to Safe and Sound</string>
+    <string name="working_groups_text">Working with your Groups</string>
+    <string name="working_incidents_text">Working with Incidents</string>
+    <string name="chg_grp_text">Change a Group</string>
+    <string name="bld_grp_text">Build a Group</string>
+    <string name="chk_evnt_text">Check an Event</string>
+    <string name="crt_evnt_text">Create an Event</string>
+    <string name="send_grp_msgs_text">Send Messages to a Group</string>
+    <string name="signout">Sign Out</string>
+    <string name="logo">logo</string>
 </resources>

@@ -119,8 +119,6 @@ public class SignUpActivity extends AppCompatActivity {
                     handler.close();
                     Intent i = new Intent(SignUpActivity.this, HomeScreenActivity.class);
                     i.putExtra("initID", initiator.getInitiatorID());
-                    i.putExtra("first", first);
-                    i.putExtra("senderClass", "SignUpActivity");
                     startActivity(i);
                 } else {
                     AlertDialog a = new AlertDialog.Builder(btnSignUp.getContext()).create();
