@@ -6,15 +6,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 public class DBHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "safeAndSoundDB.db";
-    private static final String[] TABLE_NAMES = {"Initiators", "Groups", "Members", "GroupLeaders", "GroupMembers"};
+    private static final String[] TABLE_NAMES = {"Initiators", "Groups", "Members", "GroupLeaders", "GroupMembers", "Events", "EventMembers"};
     private static final String[] TABLE1_COLUMNS = {"InitiatorID", "FirstName", "LastName", "Username", "Picture", "PhoneNumber", "Password"};
     private static final String[] TABLE2_COLUMNS = {"GroupID", "GroupName"};
     private static final String[] TABLE3_COLUMNS = {"MemberID", "FirstName", "LastName", "PhoneNumber", "Reply", "Comments"};
     private static final String[] TABLE4_COLUMNS = {"GroupLeaderID", "InitiatorID", "GroupID"};
     private static final String[] TABLE5_COLUMNS = {"GroupMemberID", "GroupID", "MemberID"};
+    private static final String[] TABLE6_COLUMNS = {"EventID", "EventName", "EventDescription"};
+    private static final String[] TABLE7_COLUMNS = {"EventMemberID", "EventID", "MemberID"};
 
     DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -40,13 +44,21 @@ public class DBHandler extends SQLiteOpenHelper {
                 "PhoneNumber TEXT, " +
                 "Reply TEXT, " +
                 "Comments TEXT);");
+        db.execSQL("CREATE TABLE Events( " +
+                "EventID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "EventName TEXT, " +
+                "EventDescription TEXT);");
         db.execSQL("CREATE TABLE GroupLeaders( " +
-                "GroupLeaders INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "GroupLeaderID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "InitiatorID INTEGER REFERENCES Initiator(InitiatorID) ON UPDATE CASCADE, " +
                 "GroupID INTEGER REFERENCES Groups(GroupID) ON UPDATE CASCADE);");
         db.execSQL("CREATE TABLE GroupMembers( " +
-                "GroupMembers INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "GroupMemberID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "GroupID INTEGER REFERENCES Groups(GroupID) ON UPDATE CASCADE, " +
+                "MemberID INTEGER REFERENCES Members(MemberID) ON UPDATE CASCADE);");
+        db.execSQL("CREATE TABLE EventMembers( " +
+                "GroupMemberID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "EventID INTEGER REFERENCES Events(EventID) ON UPDATE CASCADE, " +
                 "MemberID INTEGER REFERENCES Members(MemberID) ON UPDATE CASCADE);");
     }
 
@@ -58,6 +70,8 @@ public class DBHandler extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS Members");
             db.execSQL("DROP TABLE IF EXISTS GroupLeaders");
             db.execSQL("DROP TABLE IF EXISTS GroupMembers");
+            db.execSQL("DROP TABLE IF EXISTS Events");
+            db.execSQL("DROP TABLE IF EXISTS EventMembers");
             onCreate(db);
         }
     }
@@ -118,6 +132,26 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void addHandler(EventMember eventMember) {
+        ContentValues values = new ContentValues();
+        values.put(TABLE7_COLUMNS[0], eventMember.getEventMemberID());
+        values.put(TABLE7_COLUMNS[1], eventMember.getEventID());
+        values.put(TABLE7_COLUMNS[2], eventMember.getMemberID());
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.insert(TABLE_NAMES[6], null, values);
+        db.close();
+    }
+
+    public void addHandler(Event event) {
+        ContentValues values = new ContentValues();
+        values.put(TABLE6_COLUMNS[0], event.getEventID());
+        values.put(TABLE6_COLUMNS[1], event.getEventName());
+        values.put(TABLE6_COLUMNS[2], event.getEventDescription());
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.insert(TABLE_NAMES[5], null, values);
+        db.close();
+    }
+
     public Initiator findHandler(String user, String pass) {
         String query = "SELECT * FROM Initiators WHERE Username = " + user +
                 " AND Password = " + pass + ";";
@@ -141,26 +175,28 @@ public class DBHandler extends SQLiteOpenHelper {
         return i;
     }
 
-    public GroupLeader findHandler(int groupLeaderID, int initID) {
-        String query = "SELECT * FROM GroupLeaders WHERE GroupLeaderID = " + groupLeaderID +
-                " AND InitiatorID = " + initID + ";";
+    public ArrayList<GroupLeader> findHandlerGroupLeader(int initID) {
+        String query = "SELECT * FROM GroupLeaders WHERE InitiatorID = " + initID + ";";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor c = db.rawQuery(query, null);
-        GroupLeader gL = new GroupLeader();
-        if(c.moveToFirst()) {
-            c.moveToFirst();
+        ArrayList<GroupLeader> gLGroups = new ArrayList<>();
+        int x = 0;
+        while(c.moveToNext()) {
+            GroupLeader gL = new GroupLeader();
+            if(x == 0)
+                c.moveToFirst();
             gL.setGroupLeaderID(Integer.parseInt(c.getString(0)));
             gL.setInitiatorID(Integer.parseInt(c.getString(1)));
             gL.setGroupID(Integer.parseInt(c.getString(2)));
-            c.close();
-        } else {
-            gL = null;
+            gLGroups.add(gL);
+            x++;
         }
+        c.close();
         db.close();
-        return gL;
+        return gLGroups;
     }
 
-    public Group findHandler(int groupID) {
+    public Group findHandlerGroup(int groupID) {
         String query = "SELECT * FROM Groups WHERE GroupID = " + groupID + ";";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor c = db.rawQuery(query, null);
@@ -177,34 +213,46 @@ public class DBHandler extends SQLiteOpenHelper {
         return g;
     }
 
-    public GroupMember findHandler(int groupMemberID, String memID) {
-        try {
-            int memberID = Integer.parseInt(memID);
-            String query = "SELECT * FROM GroupMembers WHERE GroupMemberID = " + groupMemberID +
-                    " AND MemberID = " + memberID + ";";
-            SQLiteDatabase db = this.getWritableDatabase();
-            Cursor c = db.rawQuery(query, null);
-            GroupMember gM = new GroupMember();
-            if(c.moveToFirst()) {
-                c.moveToFirst();
-                gM.setGroupMemberID(Integer.parseInt(c.getString(0)));
-                gM.setGroupID(Integer.parseInt(c.getString(1)));
-                gM.setMemberID(Integer.parseInt(c.getString(2)));
-                c.close();
-            } else {
-                gM = null;
-            }
-            db.close();
-            return gM;
-        } catch(Exception e) {
-            return new GroupMember();
+    public Group findHandlerGroup(String groupName) {
+        String query = "SELECT * FROM Groups WHERE GroupName = " + groupName + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        Group g = new Group();
+        if(c.moveToFirst()) {
+            c.moveToFirst();
+            g.setGroupID(Integer.parseInt(c.getString(0)));
+            g.setGroupName(c.getString(1));
+            c.close();
+        } else {
+            g = null;
         }
+        db.close();
+        return g;
     }
 
-    public Member findHandler(String first, String last, String phone) {
-        String query = "SELECT * FROM Members WHERE FirstName = " + first +
-                " AND LastName = " + last +
-                " AND PhoneNumber = " + phone + ";";
+    public ArrayList<GroupMember> findHandlerGroupMembers(int groupID) {
+        String query = "SELECT * FROM GroupMembers WHERE GroupID = " + groupID + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        ArrayList<GroupMember> gMembers = new ArrayList<>();
+        int x = 0;
+        while(c.moveToNext()) {
+            GroupMember gM = new GroupMember();
+            if (x == 0)
+                c.moveToFirst();
+            gM.setGroupMemberID(Integer.parseInt(c.getString(0)));
+            gM.setGroupID(Integer.parseInt(c.getString(1)));
+            gM.setMemberID(Integer.parseInt(c.getString(2)));
+            gMembers.add(gM);
+            x++;
+        }
+        c.close();
+        db.close();
+        return gMembers;
+    }
+
+    public Member findHandlerMember(int memberID) {
+        String query = "SELECT * FROM Members WHERE MemberID = " + memberID + ";";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor c = db.rawQuery(query, null);
         Member m = new Member();
@@ -222,6 +270,45 @@ public class DBHandler extends SQLiteOpenHelper {
         }
         db.close();
         return m;
+    }
+
+    public ArrayList<EventMember> findHandlerEventMembers(int EventID) {
+        String query = "SELECT * FROM EventMembers WHERE EventID = " + EventID + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        ArrayList<EventMember> eMembers = new ArrayList<>();
+        int x = 0;
+        while(c.moveToNext()) {
+            EventMember eM = new EventMember();
+            if(x == 0)
+                c.moveToFirst();
+            eM.setEventMemberID(Integer.parseInt(c.getString(0)));
+            eM.setEventID(Integer.parseInt(c.getString(1)));
+            eM.setMemberID(Integer.parseInt(c.getString(2)));
+            eMembers.add(eM);
+            x++;
+        }
+        c.close();
+        db.close();
+        return eMembers;
+    }
+
+    public Event findHandlerEvent(int eventID) {
+        String query = "SELECT * FROM Events WHERE EventID = " + eventID + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        Event e = new Event();
+        if(c.moveToFirst()) {
+            c.moveToFirst();
+            e.setEventID(Integer.parseInt(c.getString(0)));
+            e.setEventName(c.getString(1));
+            e.setEventDescription(c.getString(2));
+            c.close();
+        } else {
+            e = null;
+        }
+        db.close();
+        return e;
     }
 
     public boolean deleteHandler(int id, String table) {
@@ -297,6 +384,20 @@ public class DBHandler extends SQLiteOpenHelper {
                         }
                         db.close();
                         return result;
+                    case "Events":
+                        Event  event = new Event();
+                        if(c.moveToFirst()) {
+                            event.setEventID(Integer.parseInt(c.getString(0)));
+                            db.delete(TABLE_NAMES[5], id + "=?",
+                                    new String[] {
+                                            String.valueOf(event.getEventID())
+                                    });
+                            c.close();
+                            result = true;
+                        }
+                        db.close();
+                        return result;
+                    case "EventMembers":
                 }
                 break;
             }

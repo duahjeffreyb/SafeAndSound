@@ -1,3 +1,4 @@
+// Done
 package com.example.elizabethwhitebaker.safeandsound;
 
 import android.content.Intent;
@@ -32,8 +33,13 @@ public class SignInActivity extends AppCompatActivity {
                 String user = Username.getText().toString();
                 String pass = Password.getText().toString();
                 try {
-                    handler.findHandler(user, pass);
-                    startActivity(new Intent(SignInActivity.this, HomeScreenActivity.class));
+                    Initiator initiator = handler.findHandler(user, pass);
+                    handler.close();
+                    Intent i = new Intent(SignInActivity.this, HomeScreenActivity.class);
+                    i.putExtra("initID", initiator.getInitiatorID());
+                    i.putExtra("first", initiator.getFirstName());
+                    i.putExtra("senderClass", "SignInActivity");
+                    startActivity(i);
                 } catch(Exception e) {
                     AlertDialog a = new AlertDialog.Builder(btnSignIn.getContext()).create();
                     a.setTitle("Invalid Credentials");

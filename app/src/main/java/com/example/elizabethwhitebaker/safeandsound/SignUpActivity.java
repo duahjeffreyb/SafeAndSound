@@ -1,3 +1,4 @@
+// Done
 package com.example.elizabethwhitebaker.safeandsound;
 
 import android.content.Intent;
@@ -114,8 +115,13 @@ public class SignUpActivity extends AppCompatActivity {
                         && !pass.isEmpty() && !confPass.isEmpty() && pass.equals(confPass)) {
                     Initiator initiator = new Initiator(first, last, user, pic, phone, pass);
                     handler.addHandler(initiator);
+                    initiator = handler.findHandler(user, pass);
                     handler.close();
-                    startActivity(new Intent(SignUpActivity.this, HomeScreenActivity.class));
+                    Intent i = new Intent(SignUpActivity.this, HomeScreenActivity.class);
+                    i.putExtra("initID", initiator.getInitiatorID());
+                    i.putExtra("first", first);
+                    i.putExtra("senderClass", "SignUpActivity");
+                    startActivity(i);
                 } else {
                     AlertDialog a = new AlertDialog.Builder(btnSignUp.getContext()).create();
                     a.setTitle("No");

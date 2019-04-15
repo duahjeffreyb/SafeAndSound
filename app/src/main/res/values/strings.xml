@@ -26,21 +26,19 @@
     <string name="group_name_1">Group Name 1</string>
     <string name="enter_text_message_you_would_like_to_send_everyone">Enter text message you would like to send everyone</string>
     <string name="send">Send</string>
-    <string name="go_back">Go Back</string>
     <string name="check_an_event">Check An Event</string>
     <string name="choose_the_event_name_you_want_to_check">Choose the event name you want to check:</string>
     <string name="check_employee_status_report">Check Employee Status Report</string>
-    <string name="go_back">Go Back</string>
     <string name="create_an_event">Create An Event</string>
     <string name="name_this_new_event_below">Name this new event below:</string>
     <string name="event_name">Event Name</string>
     <string name="pick_the_groups_that_will_get_the_messages_you_send_during_this_event">Pick the groups that will get the messages you send during this event:</string>
     <string name="chosen_group">Chosen Group(s):</string>
-    <string name="group_name_1">Group Name 1</string>
-    <string name="go_back">Go Back</string>
     <string name="create">Create</string>
-    <string name="group_name_1">Group Name 1</string>
     <string name="delete">Delete</string>
     <string name="delete_checked_groups">Delete Checked Groups</string>
     <string name="delete_all">Delete All</string>
+    <string name="idk">Please pick at least one group to send a message to.</string>
+    <string name="pick_the_groups_that_will_be_affected_by_this_event">Pick the groups that will be affected by this event:</string>
+    <string name="event_description">Event Description</string>
 </resources>
