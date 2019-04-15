@@ -64,15 +64,15 @@ public class BuildGroupActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
                 if(groupNameET.getText().length() > 0) {
                     memberSpinner.setEnabled(true);
                     loadSpinnerData();
                 }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 

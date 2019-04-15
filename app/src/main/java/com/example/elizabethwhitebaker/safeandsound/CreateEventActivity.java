@@ -66,15 +66,15 @@ public class CreateEventActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
                 if(eventNameET.getText().length() > 0 && eventDescET.getText().length() > 0) {
                     pickGroup.setEnabled(true);
                     loadSpinnerData();
                 }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 
@@ -86,15 +86,15 @@ public class CreateEventActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
                 if(eventNameET.getText().length() > 0 && eventDescET.getText().length() > 0) {
                     pickGroup.setEnabled(true);
                     loadSpinnerData();
                 }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 

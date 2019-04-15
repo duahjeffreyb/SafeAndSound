@@ -23,8 +23,10 @@ public class HomeScreenActivity extends AppCompatActivity {
         DBHandler handler = new DBHandler(getApplicationContext());
         Member liz = new Member("Elizabeth", "Baker", "+13366181185");
         Member codie = new Member("Codie", "Nichols", "+19105201955");
+        Member tyler = new Member("Tyler", "Hall", "+19102741577");
         handler.addHandler(liz);
         handler.addHandler(codie);
+        handler.addHandler(tyler);
         handler.close();
 
         initID = getIntent().getIntExtra("initID", 0);
