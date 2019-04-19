@@ -103,7 +103,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="Delete Checked Groups"
+                android:text="@string/delete_checked_groups"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/chosenGroupTextView" />
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="Delete All"
+                android:text="@string/delete_all"
                 app:layout_constraintBaseline_toBaselineOf="@+id/deleteCheckedButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/deleteCheckedButton" />
@@ -182,7 +182,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="A group will be made with the same name as the event."
+        android:text="@string/a_group_will_be_made_with_the_same_name_as_the_event"
         app:layout_constraintBottom_toTopOf="@+id/goBackButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

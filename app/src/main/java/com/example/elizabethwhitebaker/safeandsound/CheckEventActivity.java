@@ -1,6 +1,84 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 
-public class CheckEventActivity extends AppCompatActivity {
+import java.util.ArrayList;
+
+public class CheckEventActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener {
+//    private static final String TAG = "CheckEventActivity";
+
+    private int initID;
+    private Spinner chooseEvent;
+    private Button btnStatusReport;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_check_event);
+
+        initID = getIntent().getIntExtra("initID", 0);
+
+        chooseEvent = findViewById(R.id.chooseEventSpinner);
+
+        Button btnGoBack = findViewById(R.id.goBackButton);
+        btnStatusReport = findViewById(R.id.statusReportButton);
+
+        chooseEvent.setOnItemSelectedListener(this);
+        loadSpinnerData();
+
+        btnStatusReport.setEnabled(false);
+
+        btnStatusReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(CheckEventActivity.this, StatusReportActivity.class);
+                i.putExtra("initID", initID);
+                startActivity(i);
+            }
+        });
+
+        btnGoBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(CheckEventActivity.this, HomeScreenActivity.class);
+                i.putExtra("initID", initID);
+                startActivity(i);
+            }
+        });
+    }
+
+    private void loadSpinnerData() {
+        DBHandler handler = new DBHandler(this);
+        ArrayList<Event> es = handler.getAllEvents();
+        ArrayList<String> eventNames = new ArrayList<>();
+        eventNames.add("Select event");
+        for(Event e : es)
+            eventNames.add(e.getEventName());
+        ArrayAdapter<String> eventAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, eventNames);
+        eventAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooseEvent.setAdapter(eventAdapter);
+        handler.close();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        if(i != 0)
+            btnStatusReport.setEnabled(true);
+        else
+            btnStatusReport.setEnabled(false);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        // TODO Auto-generated method stub
+    }
 }

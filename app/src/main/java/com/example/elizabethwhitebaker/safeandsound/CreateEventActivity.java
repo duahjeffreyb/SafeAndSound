@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -51,52 +49,12 @@ public class CreateEventActivity extends AppCompatActivity implements
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
 
-        pickGroup.setEnabled(false);
         pickGroup.setOnItemSelectedListener(this);
+        loadSpinnerData();
 
         btnDeleteChecked.setEnabled(false);
         btnDeleteAll.setEnabled(false);
         btnCreate.setEnabled(false);
-
-        eventNameET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(eventNameET.getText().length() > 0 && eventDescET.getText().length() > 0) {
-                    pickGroup.setEnabled(true);
-                    loadSpinnerData();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
-        eventDescET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(eventNameET.getText().length() > 0 && eventDescET.getText().length() > 0) {
-                    pickGroup.setEnabled(true);
-                    loadSpinnerData();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
 
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,14 +72,14 @@ public class CreateEventActivity extends AppCompatActivity implements
                             btnCreate.setEnabled(false);
                         }
                         else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1)
-                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.TOP,
-                                    checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.BOTTOM, 16);
+                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.TOP,
+                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
-                            set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
-                                    checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.BOTTOM, 16);
-                        else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
-                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.TOP,
+                            set.connect(checkBoxes.get(1).getId(), ConstraintSet.TOP,
                                     R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+                        else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
+                            set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
+                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM,16);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
                     }
@@ -149,33 +107,40 @@ public class CreateEventActivity extends AppCompatActivity implements
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handler = new DBHandler(getApplicationContext());
-                Group g = new Group(eventNameET.getText().toString() + " Group");
-                handler.addHandler(g);
-                GroupLeader gL = new GroupLeader(initID, g.getGroupID());
-                handler.addHandler(gL);
-                Event e = new Event(eventNameET.getText().toString(), eventDescET.getText().toString());
-                handler.addHandler(e);
-                for(CheckBox checkBox : checkBoxes) {
-                    String groupName = checkBox.getText().toString();
-                    Group group = handler.findHandlerGroup(groupName);
-                    EventGroup eG = new EventGroup(e.getEventID(), group.getGroupID());
-                    handler.addHandler(eG);
-                    ArrayList<GroupMember> gMs = handler.findHandlerGroupMembers(group.getGroupID());
-                    for(GroupMember gM : gMs) {
-                        int memID = gM.getMemberID();
-                        Hashtable<Integer, Integer> check = new Hashtable<>();
-                        if(!check.get(g.getGroupID()).equals(memID)) {
-                            check.put(group.getGroupID(), memID);
-                            GroupMember groupM = new GroupMember(g.getGroupID(), memID);
-                            handler.addHandler(groupM);
+                ArrayList<Event> es = handler.getAllEvents();
+                int count = 0;
+                for(Event e : es)
+                    if(!eventNameET.getText().toString().equals(e.getEventName()))
+                        count++;
+                if(!eventNameET.getText().toString().isEmpty() && count == es.size() && !eventDescET.getText().toString().isEmpty()) {
+                    handler = new DBHandler(getApplicationContext());
+                    Group g = new Group(eventNameET.getText().toString() + " Group");
+                    handler.addHandler(g);
+                    GroupLeader gL = new GroupLeader(initID, g.getGroupID());
+                    handler.addHandler(gL);
+                    Event e = new Event(eventNameET.getText().toString(), eventDescET.getText().toString());
+                    handler.addHandler(e);
+                    for (CheckBox checkBox : checkBoxes) {
+                        String groupName = checkBox.getText().toString();
+                        Group group = handler.findHandlerGroup(groupName);
+                        EventGroup eG = new EventGroup(e.getEventID(), group.getGroupID());
+                        handler.addHandler(eG);
+                        ArrayList<GroupMember> gMs = handler.findHandlerGroupMembers(group.getGroupID());
+                        for (GroupMember gM : gMs) {
+                            int memID = gM.getMemberID();
+                            Hashtable<Integer, Integer> check = new Hashtable<>();
+                            if (!check.get(g.getGroupID()).equals(memID)) {
+                                check.put(group.getGroupID(), memID);
+                                GroupMember groupM = new GroupMember(g.getGroupID(), memID);
+                                handler.addHandler(groupM);
+                            }
                         }
                     }
+                    handler.close();
+                    Intent i = new Intent(CreateEventActivity.this, HomeScreenActivity.class);
+                    i.putExtra("initID", initID);
+                    startActivity(i);
                 }
-                handler.close();
-                Intent i = new Intent(CreateEventActivity.this, HomeScreenActivity.class);
-                i.putExtra("initID", initID);
-                startActivity(i);
             }
         });
 
@@ -193,6 +158,7 @@ public class CreateEventActivity extends AppCompatActivity implements
         handler = new DBHandler(getApplicationContext());
         ArrayList<Group> gs = handler.getAllGroups();
         ArrayList<String> names = new ArrayList<>();
+        names.add("Select group");
         for(Group g : gs)
             names.add(g.getGroupName());
         ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
@@ -204,35 +170,35 @@ public class CreateEventActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        btnDeleteAll.setEnabled(true);
-        btnDeleteChecked.setEnabled(true);
-        btnCreate.setEnabled(true);
-        String groupName = adapterView.getItemAtPosition(i).toString();
-        CheckBox checkBox = new CheckBox(this);
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
-                (ConstraintLayout.LayoutParams.WRAP_CONTENT,
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT);
-        scrollView.addView(checkBox, params);
-        checkBox.setText(groupName);
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(scrollView);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.RIGHT,
-                R.id.scrollViewConstraintLayout, ConstraintSet.RIGHT, 0);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
-                R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 0);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
-                R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
-        if(checkBoxes.size() == 0) {
+        if(i != 0) {
+            btnDeleteAll.setEnabled(true);
+            btnDeleteChecked.setEnabled(true);
+            btnCreate.setEnabled(true);
+            String groupName = adapterView.getItemAtPosition(i).toString();
+            CheckBox checkBox = new CheckBox(this);
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
+                    (ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            checkBox.setId(View.generateViewId());
+            scrollView.addView(checkBox, params);
+            checkBox.setText(groupName);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(scrollView);
+            constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
+                    R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 32);
             constraintSet.clear(R.id.deleteCheckedButton, ConstraintSet.TOP);
             constraintSet.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
-        } else {
-            constraintSet.clear(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP);
-            constraintSet.connect(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP,
-                    checkBox.getId(), ConstraintSet.BOTTOM, 16);
+            if (checkBoxes.size() == 0) {
+                constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                        R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+            } else {
+                constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                        checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);
+            }
+            constraintSet.applyTo(scrollView);
+            checkBoxes.add(checkBox);
         }
-        constraintSet.applyTo(scrollView);
-        checkBoxes.add(checkBox);
     }
 
     @Override

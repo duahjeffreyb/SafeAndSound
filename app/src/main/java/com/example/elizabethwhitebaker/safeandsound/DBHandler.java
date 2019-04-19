@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 
 public class DBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "safeAndSoundDB.db";
     private static final String[] TABLE_NAMES = {"Initiators", "Groups", "Members", "GroupLeaders", "GroupMembers", "Events", "EventGroups"};
     private static final String[] TABLE1_COLUMNS = {"InitiatorID", "FirstName", "LastName", "Username", "Picture", "PhoneNumber", "Password"};
@@ -374,9 +374,10 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public boolean deleteHandler(int id, String table) {
         boolean result = false;
+        String tableID = table.substring(0, table.length() - 1);
         for(String name : TABLE_NAMES) {
             if(name.equals(table)) {
-                String query = "SELECT * FROM " + table + " WHERE " + table + "ID = " + id + ";";
+                String query = "SELECT * FROM " + table + " WHERE " + tableID + "ID = " + id + ";";
                 SQLiteDatabase db = this.getWritableDatabase();
                 Cursor c = db.rawQuery(query, null);
                 switch(name) {

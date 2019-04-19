@@ -20,14 +20,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_org);
 
-        DBHandler handler = new DBHandler(getApplicationContext());
-        Member liz = new Member("Elizabeth", "Baker", "+13366181185");
-        Member codie = new Member("Codie", "Nichols", "+19105201955");
-        Member tyler = new Member("Tyler", "Hall", "+19102741577");
-        handler.addHandler(liz);
-        handler.addHandler(codie);
-        handler.addHandler(tyler);
-        handler.close();
+        DBHandler handler = new DBHandler(this);
 
         initID = getIntent().getIntExtra("initID", 0);
 
@@ -45,12 +38,22 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         ArrayList<Group> groups = handler.getAllGroups();
         ArrayList<Event> events = handler.getAllEvents();
+        ArrayList<Member> members = handler.getAllMembers();
+
+        if(members.size() == 0) {
+            handler.addHandler(new Member("Elizabeth", "Baker", "+13366181185"));
+            handler.addHandler(new Member("Tyler", "Hall", "+19102741577"));
+            handler.addHandler(new Member("Codie", "Nichols", "+19105201955"));
+        }
+
+        handler.close();
 
         if(groups.size() > 0) {
             btnCreateEvent.setEnabled(true);
             btnChangeGroup.setEnabled(true);
             btnSendMsgs.setEnabled(true);
         }
+
         if(events.size() > 0) {
             btnCheckEvent.setEnabled(true);
         }

@@ -27,7 +27,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
     private ConstraintLayout scrollView;
     private DBHandler handler;
     private ArrayList<CheckBox> checkBoxes;
-    private Button btnDeleteAll, btnDeleteChecked, btnSend;
+    private Button btnDeleteAll, btnDeleteChecked;
     private EditText message;
 
     @Override
@@ -41,7 +41,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
 
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
-        btnSend = findViewById(R.id.sendButton);
+        Button btnSend = findViewById(R.id.sendButton);
         Button btnGoBack = findViewById(R.id.goBackButton);
 
         message = findViewById(R.id.messageEditText);
@@ -83,14 +83,14 @@ public class SendMessagesActivity extends AppCompatActivity implements
                             message.setText(R.string.idk);
                         }
                         else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1)
-                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.TOP,
-                                    checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.BOTTOM, 16);
+                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.TOP,
+                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
-                            set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
-                                    checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.BOTTOM, 16);
-                        else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
-                            set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.TOP,
+                            set.connect(checkBoxes.get(1).getId(), ConstraintSet.TOP,
                                     R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+                        else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
+                            set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
+                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM,16);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
                     }
@@ -117,25 +117,12 @@ public class SendMessagesActivity extends AppCompatActivity implements
             }
         });
 
-        message.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if(message.getText().length() > 0)
-                    btnSend.setEnabled(true);
-            }
-        });
-
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 handler = new DBHandler(getApplicationContext());
                 ArrayList<String> phoneNumbers = new ArrayList<>();
+                ArrayList<String> compareNumbers = new ArrayList<>();
                 for(CheckBox checkBox : checkBoxes) {
                     String groupName = checkBox.getText().toString();
                     Group g = handler.findHandlerGroup(groupName);
@@ -148,10 +135,25 @@ public class SendMessagesActivity extends AppCompatActivity implements
                     }
                 }
                 handler.close();
-                for(String phone : phoneNumbers) {
-                    sendMessage(phone);
+                for(int i = 0; i < phoneNumbers.size(); i++) {
+                    int k = 0;
+                    for(int j = i; j < phoneNumbers.size(); j++) {
+                        if(i != j && !phoneNumbers.get(i).equals(phoneNumbers.get(j))) {
+                            k++;
+                        }
+                    }
+                    if(k == phoneNumbers.size() - i)
+                        compareNumbers.add(phoneNumbers.get(i));
                 }
-                Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                for(String number : compareNumbers) {
+                    try {
+                        sendMessage(number);
+                    } catch(Exception e) {
+                        Toast.makeText(getApplicationContext(), "Message Failed to Send", Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "Messages Sent", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
                 i.putExtra("initID", getIntent().getIntExtra("initID", 0));
                 startActivity(i);
@@ -159,19 +161,16 @@ public class SendMessagesActivity extends AppCompatActivity implements
         });
     }
 
-    private void sendMessage(String phone) {
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, "Your Boss", message.getText().toString(), null, null);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+    private void sendMessage(String phone) throws Exception {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phone, "Your Boss", message.getText().toString(), null, null);
     }
 
     private void loadSpinnerData() {
         handler = new DBHandler(getApplicationContext());
         ArrayList<Group> groups = handler.getAllGroups();
         ArrayList<String> groupNames = new ArrayList<>();
+        groupNames.add("Select group");
         for(Group g : groups)
             groupNames.add(g.getGroupName());
         ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
@@ -183,36 +182,36 @@ public class SendMessagesActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        btnDeleteAll.setEnabled(true);
-        btnDeleteChecked.setEnabled(true);
-        message.setEnabled(true);
-        message.setText("");
-        String groupName = adapterView.getItemAtPosition(i).toString();
-        CheckBox checkBox = new CheckBox(this);
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
-                (ConstraintLayout.LayoutParams.WRAP_CONTENT,
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT);
-        scrollView.addView(checkBox, params);
-        checkBox.setText(groupName);
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(scrollView);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.RIGHT,
-                R.id.scrollViewConstraintLayout, ConstraintSet.RIGHT, 0);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
-                R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 0);
-        constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
-                R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
-        if(checkBoxes.size() == 0) {
+        if(i != 0) {
+            btnDeleteAll.setEnabled(true);
+            btnDeleteChecked.setEnabled(true);
+            message.setEnabled(true);
+            message.setText("");
+            String groupName = adapterView.getItemAtPosition(i).toString();
+            CheckBox checkBox = new CheckBox(this);
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
+                    (ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            checkBox.setId(View.generateViewId());
+            scrollView.addView(checkBox, params);
+            checkBox.setText(groupName);
+            ConstraintSet constraintSet = new ConstraintSet();
+            constraintSet.clone(scrollView);
+            constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
+                    R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 32);
             constraintSet.clear(R.id.deleteCheckedButton, ConstraintSet.TOP);
             constraintSet.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
-        } else {
-            constraintSet.clear(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP);
-            constraintSet.connect(checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.TOP,
-                    checkBox.getId(), ConstraintSet.BOTTOM, 16);
+            if (checkBoxes.size() == 0) {
+                constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                        R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+            } else {
+                constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                        checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);
+            }
+            constraintSet.applyTo(scrollView);
+            checkBoxes.add(checkBox);
         }
-        constraintSet.applyTo(scrollView);
-        checkBoxes.add(checkBox);
     }
 
     @Override
