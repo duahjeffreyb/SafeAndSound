@@ -17,6 +17,4 @@ class GroupLeader {
     int getGroupID() {
         return groupID;
     }
-    void setInitiatorID(int initiatorID) { this.initiatorID = initiatorID; }
-    void setGroupID(int groupID) { this.groupID = groupID; }
 }

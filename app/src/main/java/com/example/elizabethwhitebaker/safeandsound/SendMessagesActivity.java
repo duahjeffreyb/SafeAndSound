@@ -6,8 +6,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -122,7 +120,6 @@ public class SendMessagesActivity extends AppCompatActivity implements
             public void onClick(View v) {
                 handler = new DBHandler(getApplicationContext());
                 ArrayList<String> phoneNumbers = new ArrayList<>();
-                ArrayList<String> compareNumbers = new ArrayList<>();
                 for(CheckBox checkBox : checkBoxes) {
                     String groupName = checkBox.getText().toString();
                     Group g = handler.findHandlerGroup(groupName);
@@ -131,28 +128,13 @@ public class SendMessagesActivity extends AppCompatActivity implements
                     for(GroupMember gM : gMembers) {
                         int memID = gM.getMemberID();
                         Member m = handler.findHandlerMember(memID);
-                        phoneNumbers.add(m.getPhoneNumber());
+                        if(!phoneNumbers.contains(m.getPhoneNumber()))
+                            phoneNumbers.add(m.getPhoneNumber());
                     }
                 }
                 handler.close();
-                for(int i = 0; i < phoneNumbers.size(); i++) {
-                    int k = 0;
-                    for(int j = i; j < phoneNumbers.size(); j++) {
-                        if(i != j && !phoneNumbers.get(i).equals(phoneNumbers.get(j))) {
-                            k++;
-                        }
-                    }
-                    if(k == phoneNumbers.size() - i)
-                        compareNumbers.add(phoneNumbers.get(i));
-                }
-                for(String number : compareNumbers) {
-                    try {
-                        sendMessage(number);
-                    } catch(Exception e) {
-                        Toast.makeText(getApplicationContext(), "Message Failed to Send", Toast.LENGTH_LONG).show();
-                        break;
-                    }
-                }
+                for(String number : phoneNumbers)
+                    sendMessage(number);
                 Toast.makeText(getApplicationContext(), "Messages Sent", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
                 i.putExtra("initID", getIntent().getIntExtra("initID", 0));
@@ -161,9 +143,13 @@ public class SendMessagesActivity extends AppCompatActivity implements
         });
     }
 
-    private void sendMessage(String phone) throws Exception {
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phone, "Your Boss", message.getText().toString(), null, null);
+    private void sendMessage(String phone) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phone, "Your Boss", message.getText().toString(), null, null);
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Message Failed to Send", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void loadSpinnerData() {

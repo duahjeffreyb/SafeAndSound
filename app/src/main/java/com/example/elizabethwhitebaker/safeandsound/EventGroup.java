@@ -1,6 +1,6 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-public class EventGroup {
+class EventGroup {
     private int eventGroupID;
     private int eventID;
     private int groupID;
@@ -14,7 +14,5 @@ public class EventGroup {
     int getEventGroupID() {return eventGroupID;}
     void setEventGroupID(int eventGroupID) {this.eventGroupID = eventGroupID;}
     int getEventID() {return eventID;}
-    public void setEventID(int eventID) {this.eventID = eventID;}
     int getGroupID() {return groupID;}
-    public void setGroupID(int groupID) {this.groupID = groupID;}
 }

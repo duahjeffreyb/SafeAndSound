@@ -1,15 +1,15 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-public class Member {
+class Member {
     private int memberID;
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String reply;
-    private String comments;
+    private String replyStatus;
+    private String response;
 
     Member() {}
-    public Member(String first, String last, String phone) {
+    Member(String first, String last, String phone) {
         firstName = first;
         lastName = last;
         phoneNumber = phone;
@@ -28,15 +28,15 @@ public class Member {
     String getPhoneNumber() {
         return phoneNumber;
     }
-    String getReply() {
-        return reply;
+    String getReplyStatus() {
+        return replyStatus;
     }
-    String getComments() {
-        return comments;
+    String getResponse() {
+        return response;
     }
     void setFirstName(String firstName) { this.firstName = firstName; }
     void setLastName(String lastName) { this.lastName = lastName; }
     void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-    void setReply(String reply) { this.reply = reply; }
-    void setComments(String comments) { this.comments = comments; }
+    void setReplyStatus(String replyStatus) { this.replyStatus = replyStatus; }
+    void setResponse(String response) { this.response = response; }
 }

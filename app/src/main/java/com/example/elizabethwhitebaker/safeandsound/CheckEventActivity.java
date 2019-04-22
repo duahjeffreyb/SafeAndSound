@@ -18,6 +18,7 @@ public class CheckEventActivity extends AppCompatActivity implements
     private int initID;
     private Spinner chooseEvent;
     private Button btnStatusReport;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,8 @@ public class CheckEventActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_check_event);
 
         initID = getIntent().getIntExtra("initID", 0);
+
+        intent = new Intent(CheckEventActivity.this, StatusReportActivity.class);
 
         chooseEvent = findViewById(R.id.chooseEventSpinner);
 
@@ -39,9 +42,8 @@ public class CheckEventActivity extends AppCompatActivity implements
         btnStatusReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(CheckEventActivity.this, StatusReportActivity.class);
-                i.putExtra("initID", initID);
-                startActivity(i);
+                intent.putExtra("initID", initID);
+                startActivity(intent);
             }
         });
 
@@ -71,8 +73,10 @@ public class CheckEventActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        if(i != 0)
+        if(i != 0) {
             btnStatusReport.setEnabled(true);
+            intent.putExtra("event", adapterView.getItemAtPosition(i).toString());
+        }
         else
             btnStatusReport.setEnabled(false);
     }

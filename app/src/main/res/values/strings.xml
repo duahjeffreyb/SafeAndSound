@@ -68,4 +68,6 @@
     <string name="chosen_members">Chosen Members:</string>
     <string name="delete_checked_boxes">Delete Checked Boxes</string>
     <string name="a_group_will_be_made_with_the_same_name_as_the_event">A group will be made with the same name as the event.</string>
+    <string name="responders_from_event_group_name">Responders from Event Group Name:</string>
+    <string name="done">Done</string>
 </resources>

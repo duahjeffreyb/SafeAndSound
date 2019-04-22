@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 public class CreateEventActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
@@ -120,6 +119,9 @@ public class CreateEventActivity extends AppCompatActivity implements
                     handler.addHandler(gL);
                     Event e = new Event(eventNameET.getText().toString(), eventDescET.getText().toString());
                     handler.addHandler(e);
+                    EventGroup eventGroup = new EventGroup(e.getEventID(), g.getGroupID());
+                    handler.addHandler(eventGroup);
+                    ArrayList<Integer> ids = new ArrayList<>();
                     for (CheckBox checkBox : checkBoxes) {
                         String groupName = checkBox.getText().toString();
                         Group group = handler.findHandlerGroup(groupName);
@@ -128,9 +130,8 @@ public class CreateEventActivity extends AppCompatActivity implements
                         ArrayList<GroupMember> gMs = handler.findHandlerGroupMembers(group.getGroupID());
                         for (GroupMember gM : gMs) {
                             int memID = gM.getMemberID();
-                            Hashtable<Integer, Integer> check = new Hashtable<>();
-                            if (!check.get(g.getGroupID()).equals(memID)) {
-                                check.put(group.getGroupID(), memID);
+                            if(!ids.contains(memID)) {
+                                ids.add(memID);
                                 GroupMember groupM = new GroupMember(g.getGroupID(), memID);
                                 handler.addHandler(groupM);
                             }

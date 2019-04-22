@@ -1,11 +1,11 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-public class Group {
+class Group {
     private int groupID;
     private String groupName;
 
     Group() {}
-    public Group(String name) {
+    Group(String name) {
         groupName = name;
     }
 
@@ -14,7 +14,6 @@ public class Group {
     }
     void setGroupID(int groupID) { this.groupID = groupID; }
     String getGroupName() { return groupName; }
-
     void setGroupName(String groupName) {
         this.groupName = groupName;
     }

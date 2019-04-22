@@ -1,12 +1,12 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-public class Event {
+class Event {
     private int eventID;
     private String eventName;
     private String eventDescription;
 
-    Event() {};
-    public Event(String name, String desc) {
+    Event() {}
+    Event(String name, String desc) {
         eventName = name;
         eventDescription = desc;
     }

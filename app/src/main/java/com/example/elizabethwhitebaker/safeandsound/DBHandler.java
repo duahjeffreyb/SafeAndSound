@@ -14,7 +14,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String[] TABLE_NAMES = {"Initiators", "Groups", "Members", "GroupLeaders", "GroupMembers", "Events", "EventGroups"};
     private static final String[] TABLE1_COLUMNS = {"InitiatorID", "FirstName", "LastName", "Username", "Picture", "PhoneNumber", "Password"};
     private static final String[] TABLE2_COLUMNS = {"GroupID", "GroupName"};
-    private static final String[] TABLE3_COLUMNS = {"MemberID", "FirstName", "LastName", "PhoneNumber", "Reply", "Comments"};
+    private static final String[] TABLE3_COLUMNS = {"MemberID", "FirstName", "LastName", "PhoneNumber", "ReplyStatus", "Response"};
     private static final String[] TABLE4_COLUMNS = {"GroupLeaderID", "InitiatorID", "GroupID"};
     private static final String[] TABLE5_COLUMNS = {"GroupMemberID", "GroupID", "MemberID"};
     private static final String[] TABLE6_COLUMNS = {"EventID", "EventName", "EventDescription"};
@@ -42,8 +42,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 "FirstName TEXT, " +
                 "LastName TEXT, " +
                 "PhoneNumber TEXT, " +
-                "Reply TEXT DEFAULT 'No', " +
-                "Comments TEXT DEFAULT 'N/A');");
+                "ReplyStatus TEXT DEFAULT 'UNK', " +
+                "Response TEXT DEFAULT 'No response to date.');");
         db.execSQL("CREATE TABLE Events( " +
                 "EventID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "EventName TEXT, " +
@@ -277,8 +277,8 @@ public class DBHandler extends SQLiteOpenHelper {
             m.setFirstName(c.getString(1));
             m.setLastName(c.getString(2));
             m.setPhoneNumber(c.getString(3));
-            m.setReply(c.getString(4));
-            m.setComments(c.getString(5));
+            m.setReplyStatus(c.getString(4));
+            m.setResponse(c.getString(5));
             c.close();
         } else {
             m = null;
@@ -299,8 +299,8 @@ public class DBHandler extends SQLiteOpenHelper {
             m.setFirstName(c.getString(1));
             m.setLastName(c.getString(2));
             m.setPhoneNumber(c.getString(3));
-            m.setReply(c.getString(4));
-            m.setComments(c.getString(5));
+            m.setReplyStatus(c.getString(4));
+            m.setResponse(c.getString(5));
             c.close();
         } else {
             m = null;
@@ -323,8 +323,8 @@ public class DBHandler extends SQLiteOpenHelper {
             m.setFirstName(c.getString(1));
             m.setLastName(c.getString(2));
             m.setPhoneNumber(c.getString(3));
-            m.setReply(c.getString(4));
-            m.setComments(c.getString(5));
+            m.setReplyStatus(c.getString(4));
+            m.setResponse(c.getString(5));
             mems.add(m);
             x++;
         }
@@ -372,8 +372,7 @@ public class DBHandler extends SQLiteOpenHelper {
         return events;
     }
 
-    public boolean deleteHandler(int id, String table) {
-        boolean result = false;
+    void deleteHandler(int id, String table) {
         String tableID = table.substring(0, table.length() - 1);
         for(String name : TABLE_NAMES) {
             if(name.equals(table)) {
@@ -390,10 +389,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(initiator.getInitiatorID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "Groups":
                         Group group = new Group();
                         if(c.moveToFirst()) {
@@ -403,10 +401,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(group.getGroupID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "Members":
                         Member member = new Member();
                         if(c.moveToFirst()) {
@@ -416,10 +413,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(member.getMemberID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "GroupLeaders":
                         GroupLeader groupLeader = new GroupLeader();
                         if(c.moveToFirst()) {
@@ -429,10 +425,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(groupLeader.getGroupLeaderID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "GroupMembers":
                         GroupMember groupMember = new GroupMember();
                         if(c.moveToFirst()) {
@@ -442,10 +437,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(groupMember.getGroupMemberID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "Events":
                         Event  event = new Event();
                         if(c.moveToFirst()) {
@@ -455,10 +449,9 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(event.getEventID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
                     case "EventGroups":
                         EventGroup eventGroup = new EventGroup();
                         if(c.moveToFirst()) {
@@ -468,15 +461,14 @@ public class DBHandler extends SQLiteOpenHelper {
                                             String.valueOf(eventGroup.getEventGroupID())
                                     });
                             c.close();
-                            result = true;
                         }
                         db.close();
-                        return result;
+                        break;
+                    default:
+                        break;
                 }
-                break;
             }
         }
-        return false;
     }
 
     public boolean updateHandler(int id, String firstName, String lastName, String username, byte[] picture, String phoneNumber, String password) {
