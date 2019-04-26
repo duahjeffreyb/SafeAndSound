@@ -27,6 +27,12 @@ public class SignInActivity extends AppCompatActivity {
         btnSignIn = findViewById(R.id.signInSignInButton);
         Button btnCancel = findViewById(R.id.cancelSignInButton);
 
+        //Sign In for Testing
+        String initID = "cbn8191";
+        Intent i = new Intent(SignInActivity.this, HomeScreenActivity.class);
+        i.putExtra("initID", initID);
+        startActivity(i);
+
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
