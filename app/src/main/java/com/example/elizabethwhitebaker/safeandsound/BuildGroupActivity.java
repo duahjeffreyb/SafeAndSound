@@ -1,10 +1,14 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -150,6 +154,27 @@ public class BuildGroupActivity extends AppCompatActivity implements
         memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         memberSpinner.setAdapter(memberAdapter);
         handler.close();
+    }
+
+    private void getContactList() {
+        ContentResolver cr = getContentResolver();
+        Cursor c = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        if((c != null ? c.getCount() : 0) > 0) {
+            while(c != null && c.moveToNext()) {
+                String id = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                if(c.getInt(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor pc = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{id}, null);
+                    while(pc.moveToNext()) {
+                        String phoneNo = pc.getString(pc.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    }
+                }
+            }
+        }
     }
 
     @Override
