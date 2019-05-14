@@ -28,15 +28,25 @@
         </activity>
         <activity android:name=".HomeScreenActivity">
         </activity>
-        <activity android:name=".BuildGroupActivity">
+        <activity
+            android:name=".BuildGroupActivity"
+            android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".ChangeGroupActivity">
+        <activity
+            android:name=".ChangeGroupActivity"
+            android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".CheckEventActivity">
+        <activity
+            android:name=".CheckEventActivity"
+            android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".CreateEventActivity">
+        <activity
+            android:name=".CreateEventActivity"
+            android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".SendMessagesActivity">
+        <activity
+            android:name=".SendMessagesActivity"
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity android:name=".StatusReportActivity">
         </activity>

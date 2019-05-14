@@ -23,4 +23,13 @@ class GroupMember {
     }
     void setGroupID(int groupID) { this.groupID = groupID; }
     void setMemberID(int memberID) { this.memberID = memberID; }
+
+    @Override
+    public String toString() {
+        return "GroupMember{" +
+                "groupMemberID=" + groupMemberID +
+                ", groupID=" + groupID +
+                ", memberID=" + memberID +
+                '}';
+    }
 }

@@ -8,7 +8,6 @@ import android.provider.ContactsContract;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +28,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
     private Spinner memberSpinner;
     private ConstraintLayout scrollView;
     private ArrayList<CheckBox> checkBoxes;
+    private ArrayList<String> memNames;
     private int initID;
 
     @Override
@@ -39,6 +39,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
         initID = getIntent().getIntExtra("initID", 0);
 
         checkBoxes = new ArrayList<>();
+        memNames = new ArrayList<>();
 
         groupNameET = findViewById(R.id.groupNameEditText);
 
@@ -64,6 +65,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                 ConstraintSet set = new ConstraintSet();
                 for(CheckBox checkBox : checkBoxes) {
                     if(checkBox.isChecked()) {
+                        memNames.add(checkBox.getText().toString());
                         scrollView.removeView(checkBox);
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
@@ -78,12 +80,13 @@ public class BuildGroupActivity extends AppCompatActivity implements
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
                             set.connect(checkBoxes.get(1).getId(), ConstraintSet.TOP,
-                                    R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+                                    R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
+                        reloadSpinnerData();
                     }
                 }
             }
@@ -103,6 +106,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                 set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                         R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);
                 set.applyTo(scrollView);
+                loadSpinnerData();
             }
         });
 
@@ -145,15 +149,34 @@ public class BuildGroupActivity extends AppCompatActivity implements
     private void loadSpinnerData() {
         handler = new DBHandler(this);
         ArrayList<Member> ms = handler.getAllMembers();
-        ArrayList<String> names = new ArrayList<>();
-        names.add("Select name");
+        memNames.clear();
+        memNames.add("Select name");
         for(Member m : ms)
-            names.add(m.getFirstName() + " " + m.getLastName());
+            memNames.add(m.getFirstName() + " " + m.getLastName());
         ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, names);
+                android.R.layout.simple_spinner_item, memNames);
         memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         memberSpinner.setAdapter(memberAdapter);
         handler.close();
+    }
+
+    private void reloadSpinnerData() {
+        ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, memNames);
+        memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        memberSpinner.setAdapter(memberAdapter);
+    }
+
+    private void reloadSpinnerData(String name) {
+        for(int i = 0; i < memNames.size(); i++) {
+            if (name.equals(memNames.get(i))) {
+                memNames.remove(memNames.get(i));
+            }
+        }
+        ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, memNames);
+        memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        memberSpinner.setAdapter(memberAdapter);
     }
 
     private void getContactList() {
@@ -180,10 +203,13 @@ public class BuildGroupActivity extends AppCompatActivity implements
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         if(i != 0) {
-            btnDeleteAll.setEnabled(true);
-            btnDeleteChecked.setEnabled(true);
-            btnDone.setEnabled(true);
+            if(checkBoxes.size() == 0) {
+                btnDeleteAll.setEnabled(true);
+                btnDeleteChecked.setEnabled(true);
+                btnDone.setEnabled(true);
+            }
             String memberName = adapterView.getItemAtPosition(i).toString();
+            reloadSpinnerData(memberName);
             CheckBox checkBox = new CheckBox(this);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                     (ConstraintLayout.LayoutParams.WRAP_CONTENT,
@@ -200,7 +226,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
             if (checkBoxes.size() == 0) {
                 constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
-                        R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+                        R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);
             } else {
                 constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
                         checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);

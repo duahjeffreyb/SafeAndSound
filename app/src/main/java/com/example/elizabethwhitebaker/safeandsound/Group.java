@@ -17,4 +17,12 @@ class Group {
     void setGroupName(String groupName) {
         this.groupName = groupName;
     }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "groupID=" + groupID +
+                ", groupName='" + groupName + '\'' +
+                '}';
+    }
 }
