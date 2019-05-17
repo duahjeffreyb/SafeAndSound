@@ -113,25 +113,32 @@ public class BuildGroupActivity extends AppCompatActivity implements
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!groupNameET.getText().toString().isEmpty()) {
+                if(!groupNameET.getText().toString().isEmpty() ) {
                     handler = new DBHandler(getApplicationContext());
-                    Group g = new Group(groupNameET.getText().toString());
-                    handler.addHandler(g);
-                    g = handler.findHandlerGroup(groupNameET.getText().toString());
-                    for (CheckBox checkBox : checkBoxes) {
-                        String name = checkBox.getText().toString();
-                        String first = name.substring(0, name.indexOf(" "));
-                        String last = name.substring(name.indexOf(" ") + 1);
-                        Member m = handler.findHandlerMember(first, last);
-                        GroupMember gM = new GroupMember(g.getGroupID(), m.getMemberID());
-                        handler.addHandler(gM);
+                    boolean same = false;
+                    ArrayList<Group> gs = handler.getAllGroups();
+                    for(Group g : gs)
+                        if(groupNameET.getText().toString().equals(g.getGroupName()))
+                            same = true;
+                    if(!same) {
+                        Group g = new Group(groupNameET.getText().toString());
+                        handler.addHandler(g);
+                        g = handler.findHandlerGroup(groupNameET.getText().toString());
+                        for (CheckBox checkBox : checkBoxes) {
+                            String name = checkBox.getText().toString();
+                            String first = name.substring(0, name.indexOf(" "));
+                            String last = name.substring(name.indexOf(" ") + 1);
+                            Member m = handler.findHandlerMember(first, last);
+                            GroupMember gM = new GroupMember(g.getGroupID(), m.getMemberID());
+                            handler.addHandler(gM);
+                        }
+                        GroupLeader gL = new GroupLeader(initID, g.getGroupID());
+                        handler.addHandler(gL);
+                        handler.close();
+                        Intent i = new Intent(BuildGroupActivity.this, HomeScreenActivity.class);
+                        i.putExtra("initID", initID);
+                        startActivity(i);
                     }
-                    GroupLeader gL = new GroupLeader(initID, g.getGroupID());
-                    handler.addHandler(gL);
-                    handler.close();
-                    Intent i = new Intent(BuildGroupActivity.this, HomeScreenActivity.class);
-                    i.putExtra("initID", initID);
-                    startActivity(i);
                 }
             }
         });
