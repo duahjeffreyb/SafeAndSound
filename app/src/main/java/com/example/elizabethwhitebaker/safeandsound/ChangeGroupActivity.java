@@ -24,6 +24,8 @@ public class ChangeGroupActivity extends AppCompatActivity implements
     private ConstraintLayout scrollView;
     private DBHandler handler;
     private ArrayList<CheckBox> checkBoxes;
+    private ArrayList<String> groupNames;
+    private ArrayList<String> memNames;
     private String groupName;
 
     @Override
@@ -34,6 +36,15 @@ public class ChangeGroupActivity extends AppCompatActivity implements
         initID = getIntent().getIntExtra("initID", 0);
 
         checkBoxes = new ArrayList<>();
+        groupNames = new ArrayList<>();
+        memNames = new ArrayList<>();
+
+        chooseMember.setEnabled(false);
+        btnDeleteChecked.setEnabled(false);
+        btnDeleteAll.setEnabled(false);
+        btnAddToGroup.setEnabled(false);
+        btnRemoveFromGroup.setEnabled(false);
+        btnDone.setEnabled(false);
 
         chooseGroup = findViewById(R.id.chooseGroupSpinner);
         chooseMember = findViewById(R.id.chooseMemberSpinner);
@@ -46,13 +57,6 @@ public class ChangeGroupActivity extends AppCompatActivity implements
         btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
         btnAddToGroup = findViewById(R.id.addToGroupButton);
         btnDone = findViewById(R.id.doneButton);
-
-        chooseMember.setEnabled(false);
-        btnDeleteChecked.setEnabled(false);
-        btnDeleteAll.setEnabled(false);
-        btnAddToGroup.setEnabled(false);
-        btnRemoveFromGroup.setEnabled(false);
-        btnDone.setEnabled(false);
 
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,26 +116,21 @@ public class ChangeGroupActivity extends AppCompatActivity implements
                 handler = new DBHandler(getApplicationContext());
                 Group g = handler.findHandlerGroup(groupName);
                 ArrayList<GroupMember> gms = handler.findHandlerGroupMembers(g.getGroupID());
-                ArrayList<Member> mems = new ArrayList<>();
-                ArrayList<Integer> memIDs = new ArrayList<>();
                 ArrayList<String> memNames = new ArrayList<>();
+                int mID = 0;
                 for(GroupMember gm : gms)
-                    memIDs.add(gm.getMemberID());
-                for(int mID : memIDs)
-                    mems.add(handler.findHandlerMember(mID));
-                for(Member m : mems)
-                    memNames.add(m.getFirstName() + " " + m.getLastName());
+                    memNames.add(handler.findHandlerMember(gm.getMemberID()).getFirstName() + " " + handler.findHandlerMember(gm.getMemberID()).getLastName());
                 for(CheckBox checkBox : checkBoxes) {
                     int count = 0;
                     for(String name : memNames) {
-                        if (!checkBox.getText().toString().equals(name))
+                        if (checkBox.getText().toString().equals(name))
                             count++;
                     }
                     Member m = handler.findHandlerMember(checkBox.getText().toString().substring(0, checkBox.getText().toString().indexOf(" ")),
                             checkBox.getText().toString().substring(checkBox.getText().toString().indexOf(" ") + 1));
-                    if(count == memNames.size())
+                    if(count == 0)
                         handler.addHandler(new GroupMember(m.getMemberID(), g.getGroupID()));
-                    else
+                    else if(count == 1)
                         Toast.makeText(getApplicationContext(), checkBox.getText().toString() + " is already in this group.", Toast.LENGTH_LONG).show();
                 }
                 handler.close();
@@ -181,30 +180,37 @@ public class ChangeGroupActivity extends AppCompatActivity implements
 
     private void loadSpinnerData() {
         handler = new DBHandler(this);
-        if(!chooseMember.isEnabled()) {
-            ArrayList<Group> groups = handler.getAllGroups();
-            ArrayList<String> groupNames = new ArrayList<>();
-            groupNames.add("Select group");
-            for (Group g : groups)
-                groupNames.add(g.getGroupName());
-            ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(getApplicationContext(),
-                    android.R.layout.simple_spinner_item, groupNames);
-            groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            chooseGroup.setAdapter(groupAdapter);
-        } else {
-            ArrayList<Member> ms = handler.getAllMembers();
-            ArrayList<String> memberNames = new ArrayList<>();
-            memberNames.add("Select member");
-            for (Member m : ms)
-                memberNames.add(m.getFirstName() + " " + m.getLastName());
-            ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(getApplicationContext(),
-                    android.R.layout.simple_spinner_item, memberNames);
-            memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            chooseMember.setAdapter(memberAdapter);
+        ArrayList<Group> groups = handler.getAllGroups();
+        groupNames.clear();
+        groupNames.add(0, "Select group");
+        for (Group g : groups) {
+            groupNames.add(g.getGroupName());
         }
+        ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(getApplicationContext(),
+                android.R.layout.simple_spinner_item, groupNames);
+        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooseGroup.setAdapter(groupAdapter);
         handler.close();
     }
 
+    private void reloadSpinnerData() {
+        ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, memNames);
+        memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooseMember.setAdapter(memberAdapter);
+    }
+
+    private void reloadSpinnerData(String name) {
+        for(int i = 0; i < memNames.size(); i++) {
+            if (name.equals(memNames.get(i))) {
+                memNames.remove(memNames.get(i));
+            }
+        }
+        ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, memNames);
+        memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chooseMember.setAdapter(memberAdapter);
+    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -212,7 +218,13 @@ public class ChangeGroupActivity extends AppCompatActivity implements
             if(view.equals(chooseGroup)) {
                 chooseMember.setEnabled(true);
                 groupName = adapterView.getItemAtPosition(i).toString();
-                loadSpinnerData();
+                Group g = handler.findHandlerGroup(groupName);
+                ArrayList<GroupMember> gms = handler.findHandlerGroupMembers(g.getGroupID());
+                for(GroupMember gm : gms) {
+                    Member m = handler.findHandlerMember(gm.getMemberID());
+                    memNames.add(m.getFirstName() + " " + m.getLastName());
+                }
+                reloadSpinnerData();
             } else if(view.equals(chooseMember)) {
                 btnDeleteAll.setEnabled(true);
                 btnDeleteChecked.setEnabled(true);
@@ -220,6 +232,7 @@ public class ChangeGroupActivity extends AppCompatActivity implements
                 btnRemoveFromGroup.setEnabled(true);
                 btnDone.setEnabled(true);
                 String memberName = adapterView.getItemAtPosition(i).toString();
+                reloadSpinnerData(memberName);
                 CheckBox checkBox = new CheckBox(this);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                         (ConstraintLayout.LayoutParams.WRAP_CONTENT,
