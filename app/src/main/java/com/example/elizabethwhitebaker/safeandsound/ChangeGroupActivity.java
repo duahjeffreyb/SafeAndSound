@@ -18,6 +18,7 @@ import java.util.ArrayList;
 public class ChangeGroupActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 //    private static final String TAG = "ChangeGroupActivity";
+
     private Spinner chooseGroup, chooseMember;
     private Button btnDeleteChecked, btnDeleteAll, btnAddToGroup, btnRemoveFromGroup, btnDone;
     private int initID;
@@ -39,24 +40,24 @@ public class ChangeGroupActivity extends AppCompatActivity implements
         groupNames = new ArrayList<>();
         memNames = new ArrayList<>();
 
+        btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
+        btnDeleteAll = findViewById(R.id.deleteAllButton);
+        btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
+        btnAddToGroup = findViewById(R.id.addToGroupButton);
+        btnDone = findViewById(R.id.doneButton);
+
+        scrollView = findViewById(R.id.scrollViewConstraintLayout);
+
+        chooseGroup = findViewById(R.id.chooseGroupSpinner);
+        chooseMember = findViewById(R.id.chooseMemberSpinner);
+        loadSpinnerData();
+
         chooseMember.setEnabled(false);
         btnDeleteChecked.setEnabled(false);
         btnDeleteAll.setEnabled(false);
         btnAddToGroup.setEnabled(false);
         btnRemoveFromGroup.setEnabled(false);
         btnDone.setEnabled(false);
-
-        chooseGroup = findViewById(R.id.chooseGroupSpinner);
-        chooseMember = findViewById(R.id.chooseMemberSpinner);
-        loadSpinnerData();
-
-        scrollView = findViewById(R.id.scrollViewConstraintLayout);
-
-        btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
-        btnDeleteAll = findViewById(R.id.deleteAllButton);
-        btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
-        btnAddToGroup = findViewById(R.id.addToGroupButton);
-        btnDone = findViewById(R.id.doneButton);
 
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +87,7 @@ public class ChangeGroupActivity extends AppCompatActivity implements
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
+                        reloadSpinnerData();
                     }
                 }
             }
@@ -107,6 +109,7 @@ public class ChangeGroupActivity extends AppCompatActivity implements
                 set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
                         R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
                 set.applyTo(scrollView);
+                loadSpinnerData();
             }
         });
 
@@ -200,11 +203,25 @@ public class ChangeGroupActivity extends AppCompatActivity implements
         chooseMember.setAdapter(memberAdapter);
     }
 
-    private void reloadSpinnerData(String name) {
-        for(int i = 0; i < memNames.size(); i++) {
-            if (name.equals(memNames.get(i))) {
-                memNames.remove(memNames.get(i));
+    private void reloadSpinnerData(boolean add, String name) {
+        if(!add)
+            for(int i = 0; i < memNames.size(); i++) {
+                if (name.equals(memNames.get(i))) {
+                    memNames.remove(memNames.get(i));
+                }
             }
+        else {
+            handler = new DBHandler(this);
+            ArrayList<Member> ms = handler.getAllMembers();
+            Member person = handler.findHandlerMember(name.substring(0, name.indexOf(" ")), name.substring(name.indexOf(" ") + 1));
+            if(!ms.isEmpty())
+                for (Member m : ms) {
+                    if (name.equals(m.getFirstName() + " " + m.getLastName())) {
+                        System.out.println("This person is already in the list.");
+                    } else {
+                        memNames.add(ms.indexOf(person), person.getFirstName() + " " + person.getLastName());
+                    }
+                }
         }
         ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, memNames);
@@ -232,7 +249,7 @@ public class ChangeGroupActivity extends AppCompatActivity implements
                 btnRemoveFromGroup.setEnabled(true);
                 btnDone.setEnabled(true);
                 String memberName = adapterView.getItemAtPosition(i).toString();
-                reloadSpinnerData(memberName);
+                reloadSpinnerData(false, memberName);
                 CheckBox checkBox = new CheckBox(this);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                         (ConstraintLayout.LayoutParams.WRAP_CONTENT,
