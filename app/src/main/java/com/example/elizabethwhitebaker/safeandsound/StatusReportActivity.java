@@ -37,7 +37,7 @@ public class StatusReportActivity extends AppCompatActivity {
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
 
-        Button btnGoBack = findViewById(R.id.goBackButton);
+        Button btnGoBack = findViewById(R.id.doneButton);
 
         statusReport.setText("Status Report for " + eventName);
         groupName.setText("Responders from " + eventGroup + ":");

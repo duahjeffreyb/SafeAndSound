@@ -65,7 +65,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                 ConstraintSet set = new ConstraintSet();
                 for(CheckBox checkBox : checkBoxes) {
                     if(checkBox.isChecked()) {
-                        memNames.add(checkBox.getText().toString());
+                        reloadSpinnerData(true, checkBox.getText().toString());
                         scrollView.removeView(checkBox);
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
@@ -75,7 +75,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                             btnDeleteAll.setEnabled(false);
                             btnDone.setEnabled(false);
                         }
-                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1)
+                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1 && checkBoxes.indexOf(checkBox) != 0)
                             set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
@@ -86,7 +86,6 @@ public class BuildGroupActivity extends AppCompatActivity implements
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
-                        reloadSpinnerData();
                     }
                 }
             }
@@ -123,12 +122,10 @@ public class BuildGroupActivity extends AppCompatActivity implements
                     if(!same) {
                         Group g = new Group(groupNameET.getText().toString());
                         handler.addHandler(g);
-                        g = handler.findHandlerGroup(groupNameET.getText().toString());
                         for (CheckBox checkBox : checkBoxes) {
                             String name = checkBox.getText().toString();
-                            String first = name.substring(0, name.indexOf(" "));
-                            String last = name.substring(name.indexOf(" ") + 1);
-                            Member m = handler.findHandlerMember(first, last);
+                            Member m = handler.findHandlerMember(name.substring(0, name.indexOf(" ")),
+                                    name.substring(name.indexOf(" ") + 1));
                             GroupMember gM = new GroupMember(g.getGroupID(), m.getMemberID());
                             handler.addHandler(gM);
                         }
@@ -167,19 +164,11 @@ public class BuildGroupActivity extends AppCompatActivity implements
         handler.close();
     }
 
-    private void reloadSpinnerData() {
-        ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, memNames);
-        memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        memberSpinner.setAdapter(memberAdapter);
-    }
-
-    private void reloadSpinnerData(String name) {
-        for(int i = 0; i < memNames.size(); i++) {
-            if (name.equals(memNames.get(i))) {
-                memNames.remove(memNames.get(i));
-            }
-        }
+    private void reloadSpinnerData(boolean add, String name) {
+        if(add)
+            memNames.add(name);
+        else
+            memNames.remove(name);
         ArrayAdapter<String> memberAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, memNames);
         memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -216,7 +205,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
                 btnDone.setEnabled(true);
             }
             String memberName = adapterView.getItemAtPosition(i).toString();
-            reloadSpinnerData(memberName);
+            reloadSpinnerData(false, memberName);
             CheckBox checkBox = new CheckBox(this);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                     (ConstraintLayout.LayoutParams.WRAP_CONTENT,

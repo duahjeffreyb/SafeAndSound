@@ -60,11 +60,29 @@
                 android:text="@string/bld_grp_text"
                 android:textAlignment="center" />
 
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
             <Button
-                android:id="@+id/changeGroupButton"
+                android:id="@+id/removeFromGroupButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/chg_grp_text" />
+                android:text="@string/add_to_group" />
+
+            <Button
+                android:id="@+id/removeFromGroupButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remove_from_group" />
 
         </LinearLayout>
 

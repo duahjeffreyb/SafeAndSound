@@ -111,7 +111,7 @@
         android:hint="@string/enter_text_message_you_would_like_to_send_everyone"
         android:inputType="textMultiLine"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/goBackButton"
+        app:layout_constraintBottom_toTopOf="@+id/doneButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="Autofill" />
@@ -123,12 +123,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:text="@string/send"
-        app:layout_constraintBaseline_toBaselineOf="@+id/goBackButton"
+        app:layout_constraintBaseline_toBaselineOf="@+id/doneButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline8" />
 
     <Button
-        android:id="@+id/goBackButton"
+        android:id="@+id/doneButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

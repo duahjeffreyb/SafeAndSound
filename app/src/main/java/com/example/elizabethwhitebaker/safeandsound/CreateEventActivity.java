@@ -44,7 +44,7 @@ public class CreateEventActivity extends AppCompatActivity implements
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
         btnCreate = findViewById(R.id.createButton);
-        Button btnGoBack = findViewById(R.id.goBackButton);
+        Button btnGoBack = findViewById(R.id.doneButton);
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
 

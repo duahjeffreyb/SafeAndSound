@@ -31,7 +31,7 @@ public class CheckEventActivity extends AppCompatActivity implements
 
         chooseEvent = findViewById(R.id.chooseEventSpinner);
 
-        Button btnGoBack = findViewById(R.id.goBackButton);
+        Button btnGoBack = findViewById(R.id.doneButton);
         btnStatusReport = findViewById(R.id.statusReportButton);
 
         chooseEvent.setOnItemSelectedListener(this);

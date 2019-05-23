@@ -25,7 +25,8 @@ public class HomeScreenActivity extends AppCompatActivity {
         initID = getIntent().getIntExtra("initID", 0);
 
         Button btnBuildGroup = findViewById(R.id.buildGroupButton);
-        Button btnChangeGroup = findViewById(R.id.changeGroupButton);
+        Button btnAddToGroup = findViewById(R.id.removeFromGroupButton);
+        Button btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
         Button btnSendMsgs = findViewById(R.id.sendMsgsButton);
         Button btnSignOut = findViewById(R.id.signOutButton);
         Button btnCheckEvent = findViewById(R.id.checkEventButton);
@@ -34,7 +35,8 @@ public class HomeScreenActivity extends AppCompatActivity {
         btnSendMsgs.setEnabled(false);
         btnCreateEvent.setEnabled(false);
         btnCheckEvent.setEnabled(false);
-        btnChangeGroup.setEnabled(false);
+        btnAddToGroup.setEnabled(false);
+        btnRemoveFromGroup.setEnabled(false);
 
         ArrayList<Group> groups = handler.getAllGroups();
         ArrayList<Event> events = handler.getAllEvents();
@@ -50,7 +52,8 @@ public class HomeScreenActivity extends AppCompatActivity {
 
         if(groups.size() > 0) {
             btnCreateEvent.setEnabled(true);
-            btnChangeGroup.setEnabled(true);
+            btnAddToGroup.setEnabled(true);
+            btnRemoveFromGroup.setEnabled(true);
             btnSendMsgs.setEnabled(true);
         }
 
@@ -76,10 +79,19 @@ public class HomeScreenActivity extends AppCompatActivity {
             }
         });
 
-        btnChangeGroup.setOnClickListener(new View.OnClickListener() {
+        btnAddToGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(HomeScreenActivity.this, ChangeGroupActivity.class);
+                Intent i = new Intent(HomeScreenActivity.this, AddToGroupActivity.class);
+                i.putExtra("initID", initID);
+                startActivity(i);
+            }
+        });
+
+        btnRemoveFromGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(HomeScreenActivity.this, RemoveFromGroupActivity.class);
                 i.putExtra("initID", initID);
                 startActivity(i);
             }

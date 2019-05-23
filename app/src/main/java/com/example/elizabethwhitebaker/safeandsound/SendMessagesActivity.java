@@ -40,7 +40,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
         Button btnSend = findViewById(R.id.sendButton);
-        Button btnGoBack = findViewById(R.id.goBackButton);
+        Button btnGoBack = findViewById(R.id.doneButton);
 
         message = findViewById(R.id.messageEditText);
 

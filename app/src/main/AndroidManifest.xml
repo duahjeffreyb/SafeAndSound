@@ -33,7 +33,7 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".ChangeGroupActivity"
+            android:name=".RemoveFromGroupActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
