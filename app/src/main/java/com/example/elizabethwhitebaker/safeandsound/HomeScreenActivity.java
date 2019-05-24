@@ -25,7 +25,7 @@ public class HomeScreenActivity extends AppCompatActivity {
         initID = getIntent().getIntExtra("initID", 0);
 
         Button btnBuildGroup = findViewById(R.id.buildGroupButton);
-        Button btnAddToGroup = findViewById(R.id.removeFromGroupButton);
+        Button btnAddToGroup = findViewById(R.id.addToGroupButton);
         Button btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
         Button btnSendMsgs = findViewById(R.id.sendMsgsButton);
         Button btnSignOut = findViewById(R.id.signOutButton);

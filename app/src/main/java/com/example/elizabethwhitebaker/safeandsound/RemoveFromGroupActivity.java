@@ -41,7 +41,7 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
 
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
-        btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
+        btnRemoveFromGroup = findViewById(R.id.addToGroupButton);
         Button btnGoBack = findViewById(R.id.goBackButton);
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
@@ -104,6 +104,7 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
                 handler = new DBHandler(getApplicationContext());
                 Group g = handler.findHandlerGroup(groupName);
                 loadMemberSpinnerData(g);
+                handler.close();
             }
         });
 
@@ -129,6 +130,7 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
                             count++;
                     }
                 }
+                handler.close();
             }
         });
 
@@ -193,7 +195,20 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
                 groupName = adapterView.getItemAtPosition(i).toString();
                 Group g = handler.findHandlerGroup(groupName);
                 loadMemberSpinnerData(g);
+                if(!checkBoxes.isEmpty()) {
+                    for(CheckBox checkBox : checkBoxes)
+                        scrollView.removeView(checkBox);
+                    checkBoxes.clear();
+                }
+                ConstraintSet set = new ConstraintSet();
+                set.clone(scrollView);
+                set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
+                        R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
+                set.applyTo(scrollView);
                 chooseMember.setEnabled(true);
+                btnDeleteAll.setEnabled(false);
+                btnDeleteChecked.setEnabled(false);
+                btnRemoveFromGroup.setEnabled(false);
             } else if(view.equals(chooseMember)) {
                 btnDeleteAll.setEnabled(true);
                 btnDeleteChecked.setEnabled(true);

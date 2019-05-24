@@ -73,4 +73,5 @@
     <string name="choose_the_member_s_you_would_like_to_add_to_this_group">Choose the member(s) you would like to add to this group:</string>
     <string name="choose_the_member_s_you_would_like_to_remove_from_this_group">Choose the member(s) you would like to remove from this group:</string>
     <string name="choose_the_name_of_a_person_in_your_contacts_to_add_to_your_group">Choose the name of a person in your contacts to add to your group:</string>
+    <string name="delete_checked_members_from_list">Delete checked members from list</string>
 </resources>
