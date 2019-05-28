@@ -37,6 +37,10 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
+            android:name=".AddToGroupActivity"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+        <activity
             android:name=".CheckEventActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>

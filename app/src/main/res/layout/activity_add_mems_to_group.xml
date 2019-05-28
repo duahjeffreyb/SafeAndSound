@@ -6,13 +6,13 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/changeGroupTextView"
+        android:id="@+id/addToGroupTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/change_a_group"
+        android:text="@string/add_to_group"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,10 +26,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/choose_a_group_you_would_like_to_change"
+        android:text="@string/choose_a_group_to_add_member_s"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/changeGroupTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/addToGroupTextView" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline3"
