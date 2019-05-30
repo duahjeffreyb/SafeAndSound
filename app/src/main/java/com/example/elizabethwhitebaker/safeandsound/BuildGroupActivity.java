@@ -70,7 +70,6 @@ public class BuildGroupActivity extends AppCompatActivity implements
                         ConstraintSet set = new ConstraintSet();
                         reloadSpinnerData(true, checkBox.getText().toString());
                         set.clone(scrollView);
-                        set.clear(checkBox.getId());
                         if(checkBoxes.size() == 1) {
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                                     R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);

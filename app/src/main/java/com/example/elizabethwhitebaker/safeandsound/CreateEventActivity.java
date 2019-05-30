@@ -58,10 +58,12 @@ public class CreateEventActivity extends AppCompatActivity implements
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConstraintSet set = new ConstraintSet();
-                for(CheckBox checkBox : checkBoxes) {
+                CheckBox[] checks = new CheckBox[checkBoxes.size()];
+                for(int i = 0; i < checkBoxes.size(); i++)
+                    checks[i] = checkBoxes.get(i);
+                for(CheckBox checkBox : checks) {
                     if(checkBox.isChecked()) {
-                        scrollView.removeView(checkBox);
+                        ConstraintSet set = new ConstraintSet();
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
@@ -70,7 +72,7 @@ public class CreateEventActivity extends AppCompatActivity implements
                             btnDeleteAll.setEnabled(false);
                             btnCreate.setEnabled(false);
                         }
-                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1)
+                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1 && checkBoxes.indexOf(checkBox) != 0)
                             set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
@@ -79,6 +81,7 @@ public class CreateEventActivity extends AppCompatActivity implements
                         else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM,16);
+                        scrollView.removeView(checkBox);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
                     }

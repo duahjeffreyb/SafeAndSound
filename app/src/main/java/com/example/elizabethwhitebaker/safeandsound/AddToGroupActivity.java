@@ -58,11 +58,13 @@ public class AddToGroupActivity extends AppCompatActivity implements
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConstraintSet set = new ConstraintSet();
-                for(CheckBox checkBox : checkBoxes) {
+                CheckBox[] checks = new CheckBox[checkBoxes.size()];
+                for(int i = 0; i < checkBoxes.size(); i++)
+                    checks[i] = checkBoxes.get(i);
+                for(CheckBox checkBox : checks) {
                     if(checkBox.isChecked()) {
+                        ConstraintSet set = new ConstraintSet();
                         reloadSpinnerData(true, checkBox.getText().toString());
-                        scrollView.removeView(checkBox);
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
                             set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
@@ -80,6 +82,7 @@ public class AddToGroupActivity extends AppCompatActivity implements
                         else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
                             set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
+                        scrollView.removeView(checkBox);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
                     }
