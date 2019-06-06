@@ -125,11 +125,12 @@ public class BuildGroupActivity extends AppCompatActivity implements
                     if(!same) {
                         Group g = new Group(groupNameET.getText().toString());
                         handler.addHandler(g);
+                        Group group = handler.findHandlerGroup(g.getGroupName());
                         for (CheckBox checkBox : checkBoxes) {
                             String name = checkBox.getText().toString();
                             Member m = handler.findHandlerMember(name.substring(0, name.indexOf(" ")),
                                     name.substring(name.indexOf(" ") + 1));
-                            GroupMember gM = new GroupMember(g.getGroupID(), m.getMemberID());
+                            GroupMember gM = new GroupMember(group.getGroupID(), m.getMemberID());
                             handler.addHandler(gM);
                         }
                         GroupLeader gL = new GroupLeader(initID, g.getGroupID());

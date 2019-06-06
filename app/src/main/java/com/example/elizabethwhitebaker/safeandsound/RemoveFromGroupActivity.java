@@ -14,8 +14,7 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 
-public class RemoveFromGroupActivity extends AppCompatActivity implements
-        AdapterView.OnItemSelectedListener {
+public class RemoveFromGroupActivity extends AppCompatActivity {
 //    private static final String TAG = "RemoveFromGroupActivity";
 
     private Spinner chooseGroup, chooseMember;
@@ -41,7 +40,7 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
 
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
-        btnRemoveFromGroup = findViewById(R.id.addToGroupButton);
+        btnRemoveFromGroup = findViewById(R.id.removeFromGroupButton);
         Button btnGoBack = findViewById(R.id.goBackButton);
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
@@ -54,6 +53,86 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
         btnDeleteChecked.setEnabled(false);
         btnDeleteAll.setEnabled(false);
         btnRemoveFromGroup.setEnabled(false);
+
+        chooseGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i != 0) {
+                    groupName = adapterView.getItemAtPosition(i).toString();
+                    Group g = handler.findHandlerGroup(groupName);
+                    loadMemberSpinnerData(g);
+                    if (!checkBoxes.isEmpty()) {
+                        for (CheckBox checkBox : checkBoxes)
+                            scrollView.removeView(checkBox);
+                        checkBoxes.clear();
+                    }
+                    ConstraintSet set = new ConstraintSet();
+                    set.clone(scrollView);
+                    set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
+                            R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
+                    set.applyTo(scrollView);
+                    chooseMember.setEnabled(true);
+                    btnDeleteAll.setEnabled(false);
+                    btnDeleteChecked.setEnabled(false);
+                    btnRemoveFromGroup.setEnabled(false);
+                } else {
+                    chooseMember.setEnabled(false);
+                    btnDeleteAll.setEnabled(false);
+                    btnDeleteChecked.setEnabled(false);
+                    btnRemoveFromGroup.setEnabled(false);
+                    if(!checkBoxes.isEmpty()) {
+                        for(CheckBox checkBox : checkBoxes)
+                            scrollView.removeView(checkBox);
+                        checkBoxes.clear();
+                        ConstraintSet set = new ConstraintSet();
+                        set.clone(scrollView);
+                        set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
+                                R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
+                        set.applyTo(scrollView);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}});
+
+        chooseMember.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i != 0) {
+                    btnDeleteAll.setEnabled(true);
+                    btnDeleteChecked.setEnabled(true);
+                    btnRemoveFromGroup.setEnabled(true);
+                    String memberName = adapterView.getItemAtPosition(i).toString();
+                    reloadSpinnerData(false, memberName);
+                    CheckBox checkBox = new CheckBox(getApplicationContext());
+                    ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
+                            (ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                                    ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                    checkBox.setId(View.generateViewId());
+                    scrollView.addView(checkBox, params);
+                    checkBox.setText(memberName);
+                    ConstraintSet constraintSet = new ConstraintSet();
+                    constraintSet.clone(scrollView);
+                    constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
+                            R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 32);
+                    constraintSet.clear(R.id.deleteAllButton, ConstraintSet.TOP);
+                    constraintSet.connect(R.id.deleteAllButton, ConstraintSet.TOP,
+                            checkBox.getId(), ConstraintSet.BOTTOM, 16);
+                    if (checkBoxes.size() == 0) {
+                        constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                                R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
+                    } else {
+                        constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
+                                checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);
+                    }
+                    constraintSet.applyTo(scrollView);
+                    checkBoxes.add(checkBox);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}});
 
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,23 +196,29 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
                 handler = new DBHandler(getApplicationContext());
                 Group g = handler.findHandlerGroup(groupName);
                 ArrayList<GroupMember> gms = handler.findHandlerGroupMembers(g.getGroupID());
-                ArrayList<String> mNames = new ArrayList<>();
-                for(GroupMember gm : gms) {
-                    Member m = handler.findHandlerMember(gm.getMemberID());
-                    mNames.add(m.getFirstName() + " " + m.getLastName());
+                GroupMember[] groupMembers = new GroupMember[gms.size()];
+                String[] mNames = new String[gms.size()];
+                for(int i = 0; i < gms.size(); i++)
+                    groupMembers[i] = gms.get(i);
+                for(int i = 0; i < gms.size(); i++) {
+                    Member m = handler.findHandlerMember(gms.get(i).getMemberID());
+                    mNames[i] = m.getFirstName() + " " + m.getLastName();
                 }
                 for(CheckBox checkBox : checkBoxes) {
                     int count = 0;
-                    while (count < mNames.size()) {
-                        if (checkBox.getText().toString().equals(mNames.get(count))) {
-                            handler.deleteHandler(gms.get(count).getGroupMemberID(), "GroupMembers");
-                            mNames.remove(checkBox.getText().toString());
-                            count = mNames.size();
+                    while (count < mNames.length) {
+                        if (checkBox.getText().toString().equals(mNames[count])) {
+                            handler.deleteHandler(groupMembers[count].getGroupMemberID(), "GroupMembers");
+                            mNames[count] = null;
+                            count = mNames.length;
                         } else
                             count++;
                     }
                 }
                 handler.close();
+                Intent i = new Intent(RemoveFromGroupActivity.this, HomeScreenActivity.class);
+                i.putExtra("initID", initID);
+                startActivity(i);
             }
         });
 
@@ -189,81 +274,5 @@ public class RemoveFromGroupActivity extends AppCompatActivity implements
         memberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         chooseMember.setAdapter(memberAdapter);
         handler.close();
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        if(i != 0) {
-            if(view.equals(chooseGroup)) {
-                groupName = adapterView.getItemAtPosition(i).toString();
-                Group g = handler.findHandlerGroup(groupName);
-                loadMemberSpinnerData(g);
-                if(!checkBoxes.isEmpty()) {
-                    for(CheckBox checkBox : checkBoxes)
-                        scrollView.removeView(checkBox);
-                    checkBoxes.clear();
-                }
-                ConstraintSet set = new ConstraintSet();
-                set.clone(scrollView);
-                set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
-                        R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
-                set.applyTo(scrollView);
-                chooseMember.setEnabled(true);
-                btnDeleteAll.setEnabled(false);
-                btnDeleteChecked.setEnabled(false);
-                btnRemoveFromGroup.setEnabled(false);
-            } else if(view.equals(chooseMember)) {
-                btnDeleteAll.setEnabled(true);
-                btnDeleteChecked.setEnabled(true);
-                btnRemoveFromGroup.setEnabled(true);
-                String memberName = adapterView.getItemAtPosition(i).toString();
-                reloadSpinnerData(false, memberName);
-                CheckBox checkBox = new CheckBox(this);
-                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
-                        (ConstraintLayout.LayoutParams.WRAP_CONTENT,
-                                ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                checkBox.setId(View.generateViewId());
-                scrollView.addView(checkBox, params);
-                checkBox.setText(memberName);
-                ConstraintSet constraintSet = new ConstraintSet();
-                constraintSet.clone(scrollView);
-                constraintSet.connect(checkBox.getId(), ConstraintSet.LEFT,
-                        R.id.scrollViewConstraintLayout, ConstraintSet.LEFT, 32);
-                constraintSet.clear(R.id.deleteAllButton, ConstraintSet.TOP);
-                constraintSet.connect(R.id.deleteAllButton, ConstraintSet.TOP,
-                        checkBox.getId(), ConstraintSet.BOTTOM, 16);
-                if (checkBoxes.size() == 0) {
-                    constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
-                            R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
-                } else {
-                    constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
-                            checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);
-                }
-                constraintSet.applyTo(scrollView);
-                checkBoxes.add(checkBox);
-            }
-        } else {
-            if(view.equals(chooseGroup)) {
-                chooseMember.setEnabled(false);
-                btnDeleteAll.setEnabled(false);
-                btnDeleteChecked.setEnabled(false);
-                btnRemoveFromGroup.setEnabled(false);
-                if(!checkBoxes.isEmpty()) {
-                    for(CheckBox checkBox : checkBoxes)
-                        scrollView.removeView(checkBox);
-                    checkBoxes.clear();
-                    ConstraintSet set = new ConstraintSet();
-                    set.clone(scrollView);
-                    set.connect(R.id.deleteAllButton, ConstraintSet.TOP,
-                            R.id.chosenMemberTextView, ConstraintSet.BOTTOM, 16);
-                    set.applyTo(scrollView);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        // TODO Auto-generated method stub
     }
 }

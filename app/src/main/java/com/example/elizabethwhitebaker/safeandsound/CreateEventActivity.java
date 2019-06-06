@@ -23,6 +23,7 @@ public class CreateEventActivity extends AppCompatActivity implements
     private EditText eventNameET, eventDescET;
     private int initID;
     private ArrayList<CheckBox> checkBoxes;
+    private ArrayList<String> groupNames;
     private Spinner pickGroup;
     private Button btnDeleteChecked, btnDeleteAll, btnCreate;
     private ConstraintLayout scrollView;
@@ -35,6 +36,7 @@ public class CreateEventActivity extends AppCompatActivity implements
         initID = getIntent().getIntExtra("initID", 0);
 
         checkBoxes = new ArrayList<>();
+        groupNames = new ArrayList<>();
 
         eventNameET = findViewById(R.id.nameEventEditText);
         eventDescET = findViewById(R.id.eventDescriptionEditText);
@@ -172,14 +174,28 @@ public class CreateEventActivity extends AppCompatActivity implements
         handler.close();
     }
 
+    private void reloadSpinnerData(boolean add, String name) {
+        if(add)
+            groupNames.add(name);
+        else
+            groupNames.remove(name);
+        ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, groupNames);
+        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        pickGroup.setAdapter(groupAdapter);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         if(i != 0) {
-            btnDeleteAll.setEnabled(true);
-            btnDeleteChecked.setEnabled(true);
-            btnCreate.setEnabled(true);
+            if(checkBoxes.size() == 0) {
+                btnDeleteAll.setEnabled(true);
+                btnDeleteChecked.setEnabled(true);
+                btnCreate.setEnabled(true);
+            }
             String groupName = adapterView.getItemAtPosition(i).toString();
-            CheckBox checkBox = new CheckBox(this);
+            reloadSpinnerData(false, groupName);
+            CheckBox checkBox = new CheckBox(getApplicationContext());
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                     (ConstraintLayout.LayoutParams.WRAP_CONTENT,
                             ConstraintLayout.LayoutParams.WRAP_CONTENT);

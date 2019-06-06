@@ -76,4 +76,5 @@
     <string name="delete_checked_members_from_list">Delete checked members from list</string>
     <string name="choose_a_group_to_add_member_s">Choose a group to add member(s):</string>
     <string name="choose_a_group_to_remove_member_s_from">Choose a group to remove member(s) from:</string>
+    <string name="delete_all_members_from_list">Delete All Members From List</string>
 </resources>

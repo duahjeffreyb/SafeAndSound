@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_add_mems_to_group"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -116,10 +117,10 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/delete_all_from_list"
+                android:text="@string/delete_all_members_from_list"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chosenMemberTextView" />
+                app:layout_constraintTop_toBottomOf="@+id/chosenMemberTextView"/>
 
             <TextView
                 android:id="@+id/chosenMemberTextView"

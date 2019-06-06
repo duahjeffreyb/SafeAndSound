@@ -39,4 +39,16 @@ class Member {
     void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     void setReplyStatus(String replyStatus) { this.replyStatus = replyStatus; }
     void setResponse(String response) { this.response = response; }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "memberID=" + memberID +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", replyStatus='" + replyStatus + '\'' +
+                ", response='" + response + '\'' +
+                '}';
+    }
 }

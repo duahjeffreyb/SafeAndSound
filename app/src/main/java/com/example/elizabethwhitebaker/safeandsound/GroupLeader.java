@@ -17,4 +17,13 @@ class GroupLeader {
     int getGroupID() {
         return groupID;
     }
+
+    @Override
+    public String toString() {
+        return "GroupLeader{" +
+                "groupLeaderID=" + groupLeaderID +
+                ", initiatorID=" + initiatorID +
+                ", groupID=" + groupID +
+                '}';
+    }
 }
