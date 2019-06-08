@@ -351,6 +351,24 @@ public class DBHandler extends SQLiteOpenHelper {
         return e;
     }
 
+    Event findHandlerEvent(String eventName) {
+        String query = "SELECT * FROM Events WHERE EventName = " + eventName + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        Event e = new Event();
+        if(c.moveToFirst()) {
+            c.moveToFirst();
+            e.setEventID(Integer.parseInt(c.getString(0)));
+            e.setEventName(c.getString(1));
+            e.setEventDescription(c.getString(2));
+            c.close();
+        } else {
+            e = null;
+        }
+        db.close();
+        return e;
+    }
+
     ArrayList<Event> getAllEvents() {
         String query = "SELECT * FROM Events;";
         SQLiteDatabase db = this.getWritableDatabase();

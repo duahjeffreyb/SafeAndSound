@@ -25,7 +25,8 @@ public class SendMessagesActivity extends AppCompatActivity implements
     private ConstraintLayout scrollView;
     private DBHandler handler;
     private ArrayList<CheckBox> checkBoxes;
-    private Button btnDeleteAll, btnDeleteChecked;
+    private ArrayList<String> groupNames;
+    private Button btnDeleteAll, btnDeleteChecked, btnSend;
     private EditText message;
 
     @Override
@@ -34,12 +35,13 @@ public class SendMessagesActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_send_messages);
 
         checkBoxes = new ArrayList<>();
+        groupNames = new ArrayList<>();
 
         groupSpinner = findViewById(R.id.groupSpinner);
 
         btnDeleteChecked = findViewById(R.id.deleteCheckedButton);
         btnDeleteAll = findViewById(R.id.deleteAllButton);
-        Button btnSend = findViewById(R.id.sendButton);
+        btnSend = findViewById(R.id.sendButton);
         Button btnGoBack = findViewById(R.id.doneButton);
 
         message = findViewById(R.id.messageEditText);
@@ -67,10 +69,13 @@ public class SendMessagesActivity extends AppCompatActivity implements
         btnDeleteChecked.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConstraintSet set = new ConstraintSet();
-                for(CheckBox checkBox : checkBoxes) {
+                CheckBox[] checks = new CheckBox[checkBoxes.size()];
+                for(int i = 0; i < checkBoxes.size(); i++)
+                    checks[i] = checkBoxes.get(i);
+                for(CheckBox checkBox : checks) {
                     if(checkBox.isChecked()) {
-                        scrollView.removeView(checkBox);
+                        ConstraintSet set = new ConstraintSet();
+                        reloadSpinnerData(true, checkBox.getText().toString());
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
@@ -79,16 +84,18 @@ public class SendMessagesActivity extends AppCompatActivity implements
                             btnDeleteAll.setEnabled(false);
                             message.setEnabled(false);
                             message.setText(R.string.idk);
+                            btnSend.setEnabled(false);
                         }
-                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1)
+                        else if(checkBoxes.indexOf(checkBox) != checkBoxes.size() - 1 && checkBoxes.indexOf(checkBox) != 0)
                             set.connect(checkBoxes.get(checkBoxes.indexOf(checkBox) + 1).getId(), ConstraintSet.TOP,
                                     checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == 0)
                             set.connect(checkBoxes.get(1).getId(), ConstraintSet.TOP,
-                                    R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
+                                    R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);
                         else if(checkBoxes.indexOf(checkBox) == checkBoxes.size() - 1)
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
-                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM,16);
+                                    checkBoxes.get(checkBoxes.indexOf(checkBox) - 1).getId(), ConstraintSet.BOTTOM, 16);
+                        scrollView.removeView(checkBox);
                         set.applyTo(scrollView);
                         checkBoxes.remove(checkBox);
                     }
@@ -103,15 +110,16 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 btnDeleteAll.setEnabled(false);
                 message.setEnabled(false);
                 message.setText(R.string.idk);
-                for(CheckBox checkBox : checkBoxes) {
+                btnSend.setEnabled(false);
+                for(CheckBox checkBox : checkBoxes)
                     scrollView.removeView(checkBox);
-                }
                 checkBoxes.clear();
                 ConstraintSet set = new ConstraintSet();
                 set.clone(scrollView);
                 set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                         R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
                 set.applyTo(scrollView);
+                loadSpinnerData();
             }
         });
 
@@ -123,8 +131,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 for(CheckBox checkBox : checkBoxes) {
                     String groupName = checkBox.getText().toString();
                     Group g = handler.findHandlerGroup(groupName);
-                    int groupID = g.getGroupID();
-                    ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(groupID);
+                    ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(g.getGroupID());
                     for(GroupMember gM : gMembers) {
                         int memID = gM.getMemberID();
                         Member m = handler.findHandlerMember(memID);
@@ -155,7 +162,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
     private void loadSpinnerData() {
         handler = new DBHandler(getApplicationContext());
         ArrayList<Group> groups = handler.getAllGroups();
-        ArrayList<String> groupNames = new ArrayList<>();
+        groupNames.clear();
         groupNames.add("Select group");
         for(Group g : groups)
             groupNames.add(g.getGroupName());
@@ -166,14 +173,29 @@ public class SendMessagesActivity extends AppCompatActivity implements
         handler.close();
     }
 
+    private void reloadSpinnerData(boolean add, String name) {
+        if(add)
+            groupNames.add(name);
+        else
+            groupNames.remove(name);
+        ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, groupNames);
+        groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        groupSpinner.setAdapter(groupAdapter);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         if(i != 0) {
-            btnDeleteAll.setEnabled(true);
-            btnDeleteChecked.setEnabled(true);
-            message.setEnabled(true);
-            message.setText("");
+            if(checkBoxes.size() == 0) {
+                btnDeleteAll.setEnabled(true);
+                btnDeleteChecked.setEnabled(true);
+                message.setEnabled(true);
+                message.setText("");
+                btnSend.setEnabled(true);
+            }
             String groupName = adapterView.getItemAtPosition(i).toString();
+            reloadSpinnerData(false, groupName);
             CheckBox checkBox = new CheckBox(this);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams
                     (ConstraintLayout.LayoutParams.WRAP_CONTENT,

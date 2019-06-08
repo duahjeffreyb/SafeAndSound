@@ -66,6 +66,7 @@ public class CreateEventActivity extends AppCompatActivity implements
                 for(CheckBox checkBox : checks) {
                     if(checkBox.isChecked()) {
                         ConstraintSet set = new ConstraintSet();
+                        reloadSpinnerData(true, checkBox.getText().toString());
                         set.clone(scrollView);
                         if(checkBoxes.size() == 1) {
                             set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
@@ -105,6 +106,7 @@ public class CreateEventActivity extends AppCompatActivity implements
                 set.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                         R.id.chosenGroupTextView, ConstraintSet.BOTTOM, 16);
                 set.applyTo(scrollView);
+                loadSpinnerData();
             }
         });
 
@@ -120,24 +122,26 @@ public class CreateEventActivity extends AppCompatActivity implements
                     handler = new DBHandler(getApplicationContext());
                     Group g = new Group(eventNameET.getText().toString() + " Group");
                     handler.addHandler(g);
-                    GroupLeader gL = new GroupLeader(initID, g.getGroupID());
+                    Group group = handler.findHandlerGroup(eventNameET.getText().toString() + " Group");
+                    GroupLeader gL = new GroupLeader(initID, group.getGroupID());
                     handler.addHandler(gL);
                     Event e = new Event(eventNameET.getText().toString(), eventDescET.getText().toString());
                     handler.addHandler(e);
-                    EventGroup eventGroup = new EventGroup(e.getEventID(), g.getGroupID());
+                    Event event = handler.findHandlerEvent(eventNameET.getText().toString());
+                    EventGroup eventGroup = new EventGroup(event.getEventID(), group.getGroupID());
                     handler.addHandler(eventGroup);
                     ArrayList<Integer> ids = new ArrayList<>();
                     for (CheckBox checkBox : checkBoxes) {
                         String groupName = checkBox.getText().toString();
-                        Group group = handler.findHandlerGroup(groupName);
-                        EventGroup eG = new EventGroup(e.getEventID(), group.getGroupID());
+                        Group grp = handler.findHandlerGroup(groupName);
+                        EventGroup eG = new EventGroup(event.getEventID(), grp.getGroupID());
                         handler.addHandler(eG);
-                        ArrayList<GroupMember> gMs = handler.findHandlerGroupMembers(group.getGroupID());
+                        ArrayList<GroupMember> gMs = handler.findHandlerGroupMembers(grp.getGroupID());
                         for (GroupMember gM : gMs) {
                             int memID = gM.getMemberID();
                             if(!ids.contains(memID)) {
                                 ids.add(memID);
-                                GroupMember groupM = new GroupMember(g.getGroupID(), memID);
+                                GroupMember groupM = new GroupMember(group.getGroupID(), memID);
                                 handler.addHandler(groupM);
                             }
                         }
@@ -163,12 +167,12 @@ public class CreateEventActivity extends AppCompatActivity implements
     private void loadSpinnerData() {
         handler = new DBHandler(getApplicationContext());
         ArrayList<Group> gs = handler.getAllGroups();
-        ArrayList<String> names = new ArrayList<>();
-        names.add("Select group");
+        groupNames.clear();
+        groupNames.add("Select group");
         for(Group g : gs)
-            names.add(g.getGroupName());
+            groupNames.add(g.getGroupName());
         ArrayAdapter<String> groupAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, names);
+                android.R.layout.simple_spinner_item, groupNames);
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         pickGroup.setAdapter(groupAdapter);
         handler.close();
