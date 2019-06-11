@@ -142,7 +142,6 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 handler.close();
                 for(String number : phoneNumbers)
                     sendMessage(number);
-                Toast.makeText(getApplicationContext(), "Messages Sent", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
                 i.putExtra("initID", getIntent().getIntExtra("initID", 0));
                 startActivity(i);
@@ -153,7 +152,8 @@ public class SendMessagesActivity extends AppCompatActivity implements
     private void sendMessage(String phone) {
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, "Your Boss", message.getText().toString(), null, null);
+            smsManager.sendTextMessage(phone, null, message.getText().toString(), null, null);
+            Toast.makeText(getApplicationContext(), "Messages Sent", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Message Failed to Send", Toast.LENGTH_LONG).show();
         }
