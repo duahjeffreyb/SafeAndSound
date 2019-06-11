@@ -266,6 +266,25 @@ public class DBHandler extends SQLiteOpenHelper {
         return mems;
     }
 
+    GroupMember findHandlerGroupMember(int groupID, int memID) {
+        String query = "SELECT * FROM GroupMembers WHERE GroupID = " + groupID
+                + " AND " + "MemberID = " + memID + ";";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor c = db.rawQuery(query, null);
+        GroupMember gM = new GroupMember();
+        if(c.moveToFirst()) {
+            c.moveToFirst();
+            gM.setGroupMemberID(Integer.parseInt(c.getString(0)));
+            gM.setGroupID(Integer.parseInt(c.getString(1)));
+            gM.setMemberID(Integer.parseInt(c.getString(2)));
+            c.close();
+        } else {
+            gM = null;
+        }
+        db.close();
+        return gM;
+    }
+
     Member findHandlerMember(int memberID) {
         String query = "SELECT * FROM Members WHERE MemberID = " + memberID + ";";
         SQLiteDatabase db = this.getWritableDatabase();

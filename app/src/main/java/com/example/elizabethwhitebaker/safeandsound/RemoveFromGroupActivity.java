@@ -195,25 +195,11 @@ public class RemoveFromGroupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 handler = new DBHandler(getApplicationContext());
                 Group g = handler.findHandlerGroup(groupName);
-                ArrayList<GroupMember> gms = handler.findHandlerGroupMembers(g.getGroupID());
-                GroupMember[] groupMembers = new GroupMember[gms.size()];
-                String[] mNames = new String[gms.size()];
-                for(int i = 0; i < gms.size(); i++)
-                    groupMembers[i] = gms.get(i);
-                for(int i = 0; i < gms.size(); i++) {
-                    Member m = handler.findHandlerMember(gms.get(i).getMemberID());
-                    mNames[i] = m.getFirstName() + " " + m.getLastName();
-                }
                 for(CheckBox checkBox : checkBoxes) {
-                    int count = 0;
-                    while (count < mNames.length) {
-                        if (checkBox.getText().toString().equals(mNames[count])) {
-                            handler.deleteHandler(groupMembers[count].getGroupMemberID(), "GroupMembers");
-                            mNames[count] = null;
-                            count = mNames.length;
-                        } else
-                            count++;
-                    }
+                    Member m = handler.findHandlerMember(checkBox.getText().toString().substring(0, checkBox.getText().toString().indexOf(" ")),
+                            checkBox.getText().toString().substring(checkBox.getText().toString().indexOf(" ") + 1));
+                    GroupMember gm = handler.findHandlerGroupMember(g.getGroupID(), m.getMemberID());
+                    handler.deleteHandler(gm.getGroupMemberID(), "GroupMembers");
                 }
                 handler.close();
                 Intent i = new Intent(RemoveFromGroupActivity.this, HomeScreenActivity.class);
