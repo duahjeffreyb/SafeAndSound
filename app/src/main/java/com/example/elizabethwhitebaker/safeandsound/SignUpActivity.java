@@ -31,6 +31,7 @@ public class SignUpActivity extends AppCompatActivity {
     private static final int TAKE_PHOTO = 2;
     private ImageView initImageView;
     private Bitmap pic;
+    private Button btnSignUp;
     private String first;
     private String last;
     private String user;
@@ -60,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
         initImageView = findViewById(R.id.initImageView);
 
         //Buttons
-        final Button btnSignUp = findViewById(R.id.signUpButton);
+        btnSignUp = findViewById(R.id.signUpButton);
         Button btnCancel = findViewById(R.id.cancelButton);
         Button btnPicture = findViewById(R.id.photoButton);
         Button btnTakePhoto = findViewById(R.id.takePhotoButton);
@@ -110,9 +111,9 @@ public class SignUpActivity extends AppCompatActivity {
                 phone = PhoneNumber.getText().toString();
                 pass = Password.getText().toString();
                 String confPass = ConfirmPassword.getText().toString();
-                if (!first.isEmpty() && !last.isEmpty() && !user.isEmpty()
-                        && (initImageView.getVisibility() == View.VISIBLE) && pic != null && !phone.isEmpty()
-                        && !pass.isEmpty() && !confPass.isEmpty() && pass.equals(confPass)) {
+                if (!first.equals("") && !last.equals("") && !user.equals("")
+                        && (initImageView.getVisibility() == View.VISIBLE) && pic != null && !phone.equals("")
+                        && !pass.equals("") && !confPass.equals("") && pass.equals(confPass)) {
                     Initiator initiator = new Initiator(first, last, user, pic, phone, pass);
                     handler.addHandler(initiator);
                     initiator = handler.findHandler(user, pass);
@@ -150,7 +151,7 @@ public class SignUpActivity extends AppCompatActivity {
                 Bitmap b = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 if(b != null) {
-                    b.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                    b.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
                     File f = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis() + ".jpg");
                     FileOutputStream ofile;
                     try {
