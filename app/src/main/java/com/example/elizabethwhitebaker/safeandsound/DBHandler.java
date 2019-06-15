@@ -412,98 +412,10 @@ public class DBHandler extends SQLiteOpenHelper {
     void deleteHandler(int id, String table) {
         String tableID = table.substring(0, table.length() - 1);
         for(String name : TABLE_NAMES) {
-            if(name.equals(table)) {
-                String query = "SELECT * FROM " + table + " WHERE " + tableID + "ID = " + id + ";";
+            if (name.equals(table)) {
+                String query = "DELETE FROM " + table + " WHERE " + tableID + "ID = " + id + ";";
                 SQLiteDatabase db = this.getWritableDatabase();
-                Cursor c = db.rawQuery(query, null);
-                switch(name) {
-                    case "Initiators":
-                        Initiator initiator = new Initiator();
-                        if(c.moveToFirst()) {
-                            initiator.setInitiatorID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[0], id + "=?",
-                                    new String[] {
-                                            String.valueOf(initiator.getInitiatorID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "Groups":
-                        Group group = new Group();
-                        if(c.moveToFirst()) {
-                            group.setGroupID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[1], id + "=?",
-                                    new String[] {
-                                            String.valueOf(group.getGroupID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "Members":
-                        Member member = new Member();
-                        if(c.moveToFirst()) {
-                            member.setMemberID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[2], id + "=?",
-                                    new String[] {
-                                            String.valueOf(member.getMemberID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "GroupLeaders":
-                        GroupLeader groupLeader = new GroupLeader();
-                        if(c.moveToFirst()) {
-                            groupLeader.setGroupLeaderID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[3], id + "=?",
-                                    new String[] {
-                                            String.valueOf(groupLeader.getGroupLeaderID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "GroupMembers":
-                        GroupMember groupMember = new GroupMember();
-                        if(c.moveToFirst()) {
-                            groupMember.setGroupMemberID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[4], id + "=?",
-                                    new String[] {
-                                            String.valueOf(groupMember.getGroupMemberID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "Events":
-                        Event  event = new Event();
-                        if(c.moveToFirst()) {
-                            event.setEventID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[5], id + "=?",
-                                    new String[] {
-                                            String.valueOf(event.getEventID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    case "EventGroups":
-                        EventGroup eventGroup = new EventGroup();
-                        if(c.moveToFirst()) {
-                            eventGroup.setEventGroupID(Integer.parseInt(c.getString(0)));
-                            db.delete(TABLE_NAMES[6], id + "=?",
-                                    new String[] {
-                                            String.valueOf(eventGroup.getEventGroupID())
-                                    });
-                            c.close();
-                        }
-                        db.close();
-                        break;
-                    default:
-                        break;
-                }
+                db.execSQL(query);
             }
         }
     }

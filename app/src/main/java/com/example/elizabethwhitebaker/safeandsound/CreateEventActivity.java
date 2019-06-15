@@ -114,11 +114,11 @@ public class CreateEventActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 ArrayList<Event> es = handler.getAllEvents();
-                int count = 0;
+                boolean status = true;
                 for(Event e : es)
-                    if(!eventNameET.getText().toString().equals(e.getEventName()))
-                        count++;
-                if(!eventNameET.getText().toString().isEmpty() && count == es.size() && !eventDescET.getText().toString().isEmpty()) {
+                    if(eventNameET.getText().toString().equals(e.getEventName()))
+                        status = false;
+                if(!eventNameET.getText().toString().isEmpty() && status && !eventDescET.getText().toString().isEmpty()) {
                     handler = new DBHandler(getApplicationContext());
                     Group g = new Group(eventNameET.getText().toString() + " Group");
                     handler.addHandler(g);

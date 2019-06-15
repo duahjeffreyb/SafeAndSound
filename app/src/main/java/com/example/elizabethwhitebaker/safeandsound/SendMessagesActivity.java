@@ -1,17 +1,15 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 public class SendMessagesActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 //    private static final String TAG = "SendMessagesActivity";
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
 
     private Spinner groupSpinner;
     private ConstraintLayout scrollView;
@@ -151,7 +148,8 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 String[] phones = new String[phoneNumbers.size()];
                 for(int i = 0; i < phoneNumbers.size(); i++)
                     phones[i] = phoneNumbers.get(i);
-                sendSMSMessage();
+                for(String phone : phones)
+                    sendSMS(phone);
                 Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
                 i.putExtra("initID", getIntent().getIntExtra("initID", 0));
                 startActivity(i);
@@ -159,32 +157,14 @@ public class SendMessagesActivity extends AppCompatActivity implements
         });
     }
 
-    protected void sendSMSMessage() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.SEND_SMS)) {
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                if(grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    SmsManager sms = SmsManager.getDefault();
-                    sms.sendTextMessage();
-                }
-            }
-        }
+    private void sendSMS(String phoneNumber)
+    {
+        SmsManager sms = SmsManager.getDefault();
+        if(message.getText().toString().length() > 140) {
+            ArrayList<String> parts = sms.divideMessage(message.getText().toString());
+            sms.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
+        } else
+            sms.sendTextMessage(phoneNumber, null, message.getText().toString(), null, null);
     }
 
     private void loadSpinnerData() {
