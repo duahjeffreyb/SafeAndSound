@@ -1,13 +1,19 @@
 // Done
 package com.example.elizabethwhitebaker.safeandsound;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AlertDialog;
@@ -24,19 +30,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
 //    private static final String TAG = "SignUpActivity";
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final int TAKE_PHOTO = 2;
     private ImageView initImageView;
-    private Bitmap pic;
     private Button btnSignUp;
-    private String first;
-    private String last;
-    private String user;
-    private String phone;
-    private String pass;
+    private String first, last, user, path, phone, pass, dir;
     private DBHandler handler;
     private EditText FirstName, LastName, Username, PhoneNumber, Password, ConfirmPassword;
 
@@ -45,6 +47,10 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         handler = new DBHandler(this);
+
+        dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/picFolder/";
+        File newdir = new File(dir);
+        newdir.mkdirs();
 
         //EditTexts
         FirstName = findViewById(R.id.firstNameEditText);
@@ -78,6 +84,7 @@ public class SignUpActivity extends AppCompatActivity {
                 Intent i = new Intent();
                 i.setType("image/*");
                 i.setAction(Intent.ACTION_GET_CONTENT);
+                i.putExtra("Uri", MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(Intent.createChooser(i, "Select Photo"), RESULT_LOAD_IMAGE);
             }
         });
@@ -112,15 +119,22 @@ public class SignUpActivity extends AppCompatActivity {
                 pass = Password.getText().toString();
                 String confPass = ConfirmPassword.getText().toString();
                 if (!first.equals("") && !last.equals("") && !user.equals("")
-                        && (initImageView.getVisibility() == View.VISIBLE) && pic != null && !phone.equals("")
-                        && !pass.equals("") && !confPass.equals("") && pass.equals(confPass)) {
-                    Initiator initiator = new Initiator(first, last, user, pic, phone, pass);
+                        && initImageView.getVisibility() == View.VISIBLE && !path.equals("")
+                        && !phone.equals("") && !pass.equals("") && !confPass.equals("") && pass.equals(confPass)) {
+                    Initiator initiator = new Initiator(first, last, user, path, phone, pass);
                     handler.addHandler(initiator);
                     initiator = handler.findHandler(user, pass);
                     handler.close();
-                    Intent i = new Intent(SignUpActivity.this, HomeScreenActivity.class);
-                    i.putExtra("initID", initiator.getInitiatorID());
-                    startActivity(i);
+                    if (initiator != null) {
+                        Intent i = new Intent(SignUpActivity.this, HomeScreenActivity.class);
+                        i.putExtra("initID", initiator.getInitiatorID());
+                        startActivity(i);
+                    } else {
+                        AlertDialog a = new AlertDialog.Builder(btnSignUp.getContext()).create();
+                        a.setTitle("No");
+                        a.setMessage("No");
+                        a.show();
+                    }
                 } else {
                     AlertDialog a = new AlertDialog.Builder(btnSignUp.getContext()).create();
                     a.setTitle("No");
@@ -139,11 +153,14 @@ public class SignUpActivity extends AppCompatActivity {
             Bitmap b;
             try {
                 b = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
-                pic = b;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    path = Objects.requireNonNull(data.getData()).getPath();
                 initImageView.setVisibility(View.VISIBLE);
                 initImageView.setImageBitmap(b);
             } catch(IOException e) {
                 e.printStackTrace();
+            } catch(NullPointerException npe) {
+                npe.printStackTrace();
             }
 
         } else if(requestCode == TAKE_PHOTO && resultCode == RESULT_OK && data != null) {
@@ -152,13 +169,18 @@ public class SignUpActivity extends AppCompatActivity {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 if(b != null) {
                     b.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-                    File f = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis() + ".jpg");
+                    path = dir + System.currentTimeMillis() + ".jpg";
+                    File newFile = new File(path);
+                    try {
+                        newFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     FileOutputStream ofile;
                     try {
-                        ofile = new FileOutputStream(f);
+                        ofile = new FileOutputStream(newFile);
                         ofile.write(bytes.toByteArray());
                         ofile.close();
-                        pic = b;
                     } catch (FileNotFoundException fnfe) {
                         fnfe.printStackTrace();
                     } catch (IOException e) {

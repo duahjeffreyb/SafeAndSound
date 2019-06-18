@@ -12,7 +12,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "safeAndSoundDB.db";
     private static final String[] TABLE_NAMES = {"Initiators", "Groups", "Members", "GroupLeaders", "GroupMembers", "Events", "EventGroups"};
-    private static final String[] TABLE1_COLUMNS = {"InitiatorID", "FirstName", "LastName", "Username", "Picture", "PhoneNumber", "Password"};
+    private static final String[] TABLE1_COLUMNS = {"InitiatorID", "FirstName", "LastName", "Username", "PicturePath", "PhoneNumber", "Password"};
     private static final String[] TABLE2_COLUMNS = {"GroupID", "GroupName"};
     private static final String[] TABLE3_COLUMNS = {"MemberID", "FirstName", "LastName", "PhoneNumber", "ReplyStatus", "Response"};
     private static final String[] TABLE4_COLUMNS = {"GroupLeaderID", "InitiatorID", "GroupID"};
@@ -31,7 +31,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 "FirstName TEXT, " +
                 "LastName TEXT, " +
                 "Username TEXT, " +
-                "Picture BLOB, " +
+                "PicturePath TEXT, " +
                 "PhoneNumber TEXT, " +
                 "Password TEXT);");
         db.execSQL("CREATE TABLE Groups( " +
@@ -81,7 +81,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(TABLE1_COLUMNS[1], initiator.getFirstName());
         values.put(TABLE1_COLUMNS[2], initiator.getLastName());
         values.put(TABLE1_COLUMNS[3], initiator.getUsername());
-        values.put(TABLE1_COLUMNS[4], initiator.getBytes());
+        values.put(TABLE1_COLUMNS[4], initiator.getPicturePath());
         values.put(TABLE1_COLUMNS[5], initiator.getPhoneNumber());
         values.put(TABLE1_COLUMNS[6], initiator.getPassword());
         SQLiteDatabase db = this.getWritableDatabase();
@@ -155,11 +155,12 @@ public class DBHandler extends SQLiteOpenHelper {
             i.setFirstName(c.getString(1));
             i.setLastName(c.getString(2));
             i.setUsername(c.getString(3));
-            i.setBytes(c.getBlob(4));
+            i.setPicturePath(c.getString(4));
             i.setPhoneNumber(c.getString(5));
             i.setPassword(c.getString(6));
             c.close();
         } else {
+            c.close();
             i = null;
         }
         db.close();
@@ -180,7 +181,7 @@ public class DBHandler extends SQLiteOpenHelper {
             i.setFirstName(c.getString(1));
             i.setLastName(c.getString(2));
             i.setUsername(c.getString(3));
-            i.setBytes(c.getBlob(4));
+            i.setPicturePath(c.getString(4));
             i.setPhoneNumber(c.getString(5));
             i.setPassword(c.getString(6));
             inits.add(i);
@@ -371,7 +372,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     Event findHandlerEvent(String eventName) {
-        String query = "SELECT * FROM Events WHERE EventName = " + eventName + ";";
+        String query = "SELECT * FROM Events WHERE EventName = '" + eventName + "';";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor c = db.rawQuery(query, null);
         Event e = new Event();

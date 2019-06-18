@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,16 +26,21 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import static android.Manifest.permission.SEND_SMS;
 
 public class SendMessagesActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 //    private static final String TAG = "SendMessagesActivity";
-
+    private static final int REQUEST_SMS = 0;
+    private BroadcastReceiver sentStatusReceiver, deliveredStatusReceiver;
     private Spinner groupSpinner;
     private ConstraintLayout scrollView;
     private DBHandler handler;
     private ArrayList<CheckBox> checkBoxes;
     private ArrayList<String> groupNames;
+    private String[] phones;
     private Button btnDeleteAll, btnDeleteChecked, btnSend;
     private EditText message;
 
@@ -131,40 +141,150 @@ public class SendMessagesActivity extends AppCompatActivity implements
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handler = new DBHandler(getApplicationContext());
-                ArrayList<String> phoneNumbers = new ArrayList<>();
-                for(CheckBox checkBox : checkBoxes) {
-                    String groupName = checkBox.getText().toString();
-                    Group g = handler.findHandlerGroup(groupName);
-                    ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(g.getGroupID());
-                    for(GroupMember gM : gMembers) {
-                        int memID = gM.getMemberID();
-                        Member m = handler.findHandlerMember(memID);
-                        if(!phoneNumbers.contains(m.getPhoneNumber()))
-                            phoneNumbers.add(m.getPhoneNumber());
+                if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    int hasSMSPermission = checkSelfPermission(SEND_SMS);
+                    if(hasSMSPermission != PackageManager.PERMISSION_GRANTED) {
+                        if(!shouldShowRequestPermissionRationale(SEND_SMS)) {
+                            showMessageOKCancel("You need to allow access to Send SMS",
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            requestPermissions(new String[] {SEND_SMS},
+                                                    REQUEST_SMS);
+                                        }
+                                    });
+                            return;
+                        }
+                        requestPermissions(new String[] {SEND_SMS}, REQUEST_SMS);
+                        return;
                     }
+                    handler = new DBHandler(getApplicationContext());
+                    ArrayList<String> phoneNumbers = new ArrayList<>();
+                    for(CheckBox checkBox : checkBoxes) {
+                        String groupName = checkBox.getText().toString();
+                        Group g = handler.findHandlerGroup(groupName);
+                        ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(g.getGroupID());
+                        for(GroupMember gM : gMembers) {
+                            int memID = gM.getMemberID();
+                            Member m = handler.findHandlerMember(memID);
+                            if(!phoneNumbers.contains(m.getPhoneNumber()))
+                                phoneNumbers.add(m.getPhoneNumber());
+                        }
+                    }
+                    handler.close();
+                    phones = new String[phoneNumbers.size()];
+                    for(int i = 0; i < phoneNumbers.size(); i++)
+                        phones[i] = phoneNumbers.get(i);
+                    sendSMS();
+                    Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
+                    i.putExtra("initID", getIntent().getIntExtra("initID", 0));
+                    startActivity(i);
                 }
-                handler.close();
-                String[] phones = new String[phoneNumbers.size()];
-                for(int i = 0; i < phoneNumbers.size(); i++)
-                    phones[i] = phoneNumbers.get(i);
-                for(String phone : phones)
-                    sendSMS(phone);
-                Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
-                startActivity(i);
             }
         });
     }
 
-    private void sendSMS(String phoneNumber)
-    {
+    private void sendSMS() {
         SmsManager sms = SmsManager.getDefault();
-        if(message.getText().toString().length() > 140) {
-            ArrayList<String> parts = sms.divideMessage(message.getText().toString());
-            sms.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
-        } else
-            sms.sendTextMessage(phoneNumber, null, message.getText().toString(), null, null);
+        List<String> messages = sms.divideMessage(message.getText().toString());
+        for (String phone : phones) {
+            for (String msg : messages) {
+                PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
+                PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
+                sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
+            }
+        }
+    }
+
+    public void onResume() {
+        super.onResume();
+        sentStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String s = "Unknown Error";
+                switch(getResultCode()) {
+                    case Activity.RESULT_OK:
+                        s = "Message Sent Successfully!!";
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        s = "Generic Failure Error";
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        s = "Error : No Service Available";
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        s = "Error : Null PDU";
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        s = "Error : Radio is off";
+                        break;
+                    default:
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+        };
+        deliveredStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String s = "Message Not Delivered";
+                switch(getResultCode()) {
+                    case Activity.RESULT_OK:
+                        s = "Message Delivered Successfully";
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        break;
+                }
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+            }
+        };
+        registerReceiver(sentStatusReceiver, new IntentFilter("SMS_SENT"));
+        registerReceiver(deliveredStatusReceiver, new IntentFilter("SMS_DELIVERED"));
+    }
+
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(sentStatusReceiver);
+        unregisterReceiver(deliveredStatusReceiver);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_SMS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "Permission Granted, Now you can access sms", Toast.LENGTH_SHORT).show();
+                sendSMS();
+            } else {
+                Toast.makeText(getApplicationContext(), "Permission Denied, You cannot access and sms", Toast.LENGTH_SHORT).show();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (shouldShowRequestPermissionRationale(SEND_SMS)) {
+                        showMessageOKCancel("You need to allow access to both the permissions",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        requestPermissions(new String[]{SEND_SMS},
+                                                REQUEST_SMS);
+                                    }
+                                });
+                    }
+                }
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new android.support.v7.app.AlertDialog.Builder(SendMessagesActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
     }
 
     private void loadSpinnerData() {

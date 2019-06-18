@@ -43,9 +43,9 @@ public class HomeScreenActivity extends AppCompatActivity {
         ArrayList<Member> members = handler.getAllMembers();
 
         if(members.size() == 0) {
-            handler.addHandler(new Member("Elizabeth", "Baker", "+13366181185"));
-            handler.addHandler(new Member("Tyler", "Hall", "+19102741577"));
-            handler.addHandler(new Member("Codie", "Nichols", "+19105201955"));
+            handler.addHandler(new Member("Elizabeth", "Baker", "3366181185"));
+            handler.addHandler(new Member("Tyler", "Hall", "9102741577"));
+            handler.addHandler(new Member("Codie", "Nichols", "9105201955"));
         }
 
         handler.close();

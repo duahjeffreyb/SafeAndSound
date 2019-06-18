@@ -14,7 +14,9 @@ import java.util.ArrayList;
 
 public class StatusReportActivity extends AppCompatActivity {
 //    private static final String TAG = "StatusReportActivity";
-
+    private int initID;
+    private DBHandler handler;
+    private TextView statusReport, groupName;
     private ArrayList<TextView> names;
     private ArrayList<TextView> reportStatuses;
     private ArrayList<TextView> responses;
@@ -26,14 +28,12 @@ public class StatusReportActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_status_report);
 
-        DBHandler handler = new DBHandler(this);
-
-        final int initID = getIntent().getIntExtra("initID", 0);
+        initID = getIntent().getIntExtra("initID", 0);
         String eventName = getIntent().getStringExtra("event");
         String eventGroup = eventName + " Group";
 
-        TextView statusReport = findViewById(R.id.statusReportTextView);
-        TextView groupName = findViewById(R.id.groupNameTextView);
+        statusReport = findViewById(R.id.statusReportTextView);
+        groupName = findViewById(R.id.groupNameTextView);
 
         scrollView = findViewById(R.id.scrollViewConstraintLayout);
 
@@ -42,6 +42,8 @@ public class StatusReportActivity extends AppCompatActivity {
         statusReport.setText("Status Report for " + eventName);
         groupName.setText("Responders from " + eventGroup + ":");
 
+        handler = new DBHandler(getApplicationContext());
+
         Group g = handler.findHandlerGroup(eventGroup);
         ArrayList<GroupMember> gms = handler.findHandlerGroupMembers(g.getGroupID());
 
@@ -49,8 +51,6 @@ public class StatusReportActivity extends AppCompatActivity {
             Member m = handler.findHandlerMember(gm.getMemberID());
             createMemberNameTextView(m.getFirstName() + " " + m.getLastName());
         }
-
-
 
         btnGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
