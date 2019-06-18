@@ -48,9 +48,8 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
         handler = new DBHandler(this);
 
-        dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/picFolder/";
-        File newdir = new File(dir);
-        newdir.mkdirs();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+            dir = Environment.DIRECTORY_DOCUMENTS;
 
         //EditTexts
         FirstName = findViewById(R.id.firstNameEditText);

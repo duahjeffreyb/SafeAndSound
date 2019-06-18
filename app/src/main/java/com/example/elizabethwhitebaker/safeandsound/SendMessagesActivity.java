@@ -141,45 +141,27 @@ public class SendMessagesActivity extends AppCompatActivity implements
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    int hasSMSPermission = checkSelfPermission(SEND_SMS);
-                    if(hasSMSPermission != PackageManager.PERMISSION_GRANTED) {
-                        if(!shouldShowRequestPermissionRationale(SEND_SMS)) {
-                            showMessageOKCancel("You need to allow access to Send SMS",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            requestPermissions(new String[] {SEND_SMS},
-                                                    REQUEST_SMS);
-                                        }
-                                    });
-                            return;
-                        }
-                        requestPermissions(new String[] {SEND_SMS}, REQUEST_SMS);
-                        return;
+                handler = new DBHandler(getApplicationContext());
+                ArrayList<String> phoneNumbers = new ArrayList<>();
+                for (CheckBox checkBox : checkBoxes) {
+                    String groupName = checkBox.getText().toString();
+                    Group g = handler.findHandlerGroup(groupName);
+                    ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(g.getGroupID());
+                    for (GroupMember gM : gMembers) {
+                        int memID = gM.getMemberID();
+                        Member m = handler.findHandlerMember(memID);
+                        if (!phoneNumbers.contains(m.getPhoneNumber()))
+                            phoneNumbers.add(m.getPhoneNumber());
                     }
-                    handler = new DBHandler(getApplicationContext());
-                    ArrayList<String> phoneNumbers = new ArrayList<>();
-                    for(CheckBox checkBox : checkBoxes) {
-                        String groupName = checkBox.getText().toString();
-                        Group g = handler.findHandlerGroup(groupName);
-                        ArrayList<GroupMember> gMembers = handler.findHandlerGroupMembers(g.getGroupID());
-                        for(GroupMember gM : gMembers) {
-                            int memID = gM.getMemberID();
-                            Member m = handler.findHandlerMember(memID);
-                            if(!phoneNumbers.contains(m.getPhoneNumber()))
-                                phoneNumbers.add(m.getPhoneNumber());
-                        }
-                    }
-                    handler.close();
-                    phones = new String[phoneNumbers.size()];
-                    for(int i = 0; i < phoneNumbers.size(); i++)
-                        phones[i] = phoneNumbers.get(i);
-                    sendSMS();
-                    Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                    i.putExtra("initID", getIntent().getIntExtra("initID", 0));
-                    startActivity(i);
                 }
+                handler.close();
+                phones = new String[phoneNumbers.size()];
+                for (int i = 0; i < phoneNumbers.size(); i++)
+                    phones[i] = phoneNumbers.get(i);
+                sendSMS();
+                Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
+                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
+                startActivity(i);
             }
         });
     }
