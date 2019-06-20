@@ -245,29 +245,13 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Permission Denied, You cannot access and sms", Toast.LENGTH_SHORT).show();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (shouldShowRequestPermissionRationale(SEND_SMS)) {
-                        showMessageOKCancel(
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        requestPermissions(new String[]{SEND_SMS},
-                                                REQUEST_SMS);
-                                    }
-                                });
+                        requestPermissions(new String[]{SEND_SMS}, REQUEST_SMS);
                     }
                 }
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    private void showMessageOKCancel(DialogInterface.OnClickListener okListener) {
-        new android.support.v7.app.AlertDialog.Builder(SendMessagesActivity.this)
-                .setMessage("You need to allow access to both the permissions")
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
     }
 
     private void loadSpinnerData() {

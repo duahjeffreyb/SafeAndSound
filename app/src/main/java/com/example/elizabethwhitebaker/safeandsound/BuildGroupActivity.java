@@ -1,6 +1,5 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -28,7 +27,7 @@ public class BuildGroupActivity extends AppCompatActivity implements
     private Spinner memberSpinner;
     private ConstraintLayout scrollView;
     private ArrayList<CheckBox> checkBoxes;
-    private ArrayList<String> memNames;
+    private ArrayList<String> memNames, contacts;
     private int initID;
 
     @Override
@@ -179,26 +178,19 @@ public class BuildGroupActivity extends AppCompatActivity implements
         memberSpinner.setAdapter(memberAdapter);
     }
 
-//    private void getContactList() {
-//        ContentResolver cr = getContentResolver();
-//        Cursor c = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-//        if((c != null ? c.getCount() : 0) > 0) {
-//            while(c != null && c.moveToNext()) {
-//                String id = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
-//                String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//                if(c.getInt(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-//                    Cursor pc = cr.query(
-//                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-//                            null,
-//                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-//                            new String[]{id}, null);
-//                    while(pc.moveToNext()) {
-//                        String phoneNo = pc.getString(pc.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private void getContactList() {
+        contacts = new ArrayList<>();
+        Cursor c = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null, null, null, null);
+        if (c != null) {
+            while(c.moveToNext()) {
+                String name = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phone = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                contacts.add(name + " : " + phone);
+            }
+            c.close();
+        }
+    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
