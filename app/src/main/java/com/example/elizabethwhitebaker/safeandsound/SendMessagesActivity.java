@@ -167,6 +167,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
     }
 
     private void sendSMS() {
+        message.append(" (Answer \"yes\" or \"no\" and then write comments please)");
         SmsManager sms = SmsManager.getDefault();
         List<String> messages = sms.divideMessage(message.getText().toString());
         for (String phone : phones) {
@@ -244,7 +245,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 Toast.makeText(getApplicationContext(), "Permission Denied, You cannot access and sms", Toast.LENGTH_SHORT).show();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (shouldShowRequestPermissionRationale(SEND_SMS)) {
-                        showMessageOKCancel("You need to allow access to both the permissions",
+                        showMessageOKCancel(
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -260,9 +261,9 @@ public class SendMessagesActivity extends AppCompatActivity implements
         }
     }
 
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+    private void showMessageOKCancel(DialogInterface.OnClickListener okListener) {
         new android.support.v7.app.AlertDialog.Builder(SendMessagesActivity.this)
-                .setMessage(message)
+                .setMessage("You need to allow access to both the permissions")
                 .setPositiveButton("OK", okListener)
                 .setNegativeButton("Cancel", null)
                 .create()

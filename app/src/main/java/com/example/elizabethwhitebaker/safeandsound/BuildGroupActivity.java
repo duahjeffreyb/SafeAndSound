@@ -224,13 +224,12 @@ public class BuildGroupActivity extends AppCompatActivity implements
             constraintSet.clear(R.id.deleteCheckedButton, ConstraintSet.TOP);
             constraintSet.connect(R.id.deleteCheckedButton, ConstraintSet.TOP,
                     checkBox.getId(), ConstraintSet.BOTTOM, 16);
-            if (checkBoxes.size() == 0) {
+            if (checkBoxes.size() == 0)
                 constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
                         R.id.chosenMembersTextView, ConstraintSet.BOTTOM, 16);
-            } else {
+            else
                 constraintSet.connect(checkBox.getId(), ConstraintSet.TOP,
                         checkBoxes.get(checkBoxes.size() - 1).getId(), ConstraintSet.BOTTOM, 16);
-            }
             constraintSet.applyTo(scrollView);
             checkBoxes.add(checkBox);
         }

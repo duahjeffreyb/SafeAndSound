@@ -1,19 +1,13 @@
 // Done
 package com.example.elizabethwhitebaker.safeandsound;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AlertDialog;
@@ -38,7 +32,7 @@ public class SignUpActivity extends AppCompatActivity {
     private static final int TAKE_PHOTO = 2;
     private ImageView initImageView;
     private Button btnSignUp;
-    private String first, last, user, path, phone, pass, dir;
+    private String first, last, user, path, phone, pass;
     private DBHandler handler;
     private EditText FirstName, LastName, Username, PhoneNumber, Password, ConfirmPassword;
 
@@ -47,9 +41,6 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         handler = new DBHandler(this);
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-            dir = Environment.DIRECTORY_DOCUMENTS;
 
         //EditTexts
         FirstName = findViewById(R.id.firstNameEditText);
@@ -168,9 +159,11 @@ public class SignUpActivity extends AppCompatActivity {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                 if(b != null) {
                     b.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                    String dir = getFilesDir().getAbsolutePath();
                     path = dir + System.currentTimeMillis() + ".jpg";
                     File newFile = new File(path);
                     try {
+                        //noinspection ResultOfMethodCallIgnored
                         newFile.createNewFile();
                     } catch (IOException e) {
                         e.printStackTrace();

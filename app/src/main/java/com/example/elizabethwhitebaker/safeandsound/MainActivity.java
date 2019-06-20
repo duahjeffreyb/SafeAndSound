@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import static android.Manifest.permission.READ_SMS;
 import static android.Manifest.permission.SEND_SMS;
 
 public class MainActivity extends AppCompatActivity {
     //private static final String TAG = "MainActivity";
 
     private static final int REQUEST_SMS = 0;
+    private static final int REQUEST_READ_SMS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,22 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 requestPermissions(new String[]{SEND_SMS}, REQUEST_SMS);
-                return;
+            }
+
+            int hasReadPermission = checkSelfPermission(READ_SMS);
+            if(hasReadPermission != PackageManager.PERMISSION_GRANTED) {
+                if(!shouldShowRequestPermissionRationale(READ_SMS)) {
+                    showMessageOKCancel("You need to allow access to Read SMS",
+                            new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            requestPermissions(new String[]{READ_SMS},
+                                    REQUEST_READ_SMS);
+                        }
+                    });
+                    return;
+                }
+                requestPermissions(new String[]{READ_SMS}, REQUEST_READ_SMS);
             }
         }
     }
