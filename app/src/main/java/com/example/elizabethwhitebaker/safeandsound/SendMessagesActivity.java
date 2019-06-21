@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -41,13 +40,17 @@ public class SendMessagesActivity extends AppCompatActivity implements
     private ArrayList<CheckBox> checkBoxes;
     private ArrayList<String> groupNames;
     private String[] phones;
+//    private Intents.
     private Button btnDeleteAll, btnDeleteChecked, btnSend;
     private EditText message;
+//    private Intent i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_messages);
+
+//        i = new Intent(SendMessagesActivity.this, StatusReportActivity.class);
 
         checkBoxes = new ArrayList<>();
         groupNames = new ArrayList<>();
@@ -75,9 +78,9 @@ public class SendMessagesActivity extends AppCompatActivity implements
         btnGoBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
-                startActivity(i);
+                Intent back = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
+                back.putExtra("initID", getIntent().getIntExtra("initID", 0));
+                startActivity(back);
             }
         });
 
@@ -159,9 +162,10 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 for (int i = 0; i < phoneNumbers.size(); i++)
                     phones[i] = phoneNumbers.get(i);
                 sendSMS();
-                Intent i = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
-                i.putExtra("initID", getIntent().getIntExtra("initID", 0));
-                startActivity(i);
+//                startActivity(i);
+                Intent home = new Intent(SendMessagesActivity.this, HomeScreenActivity.class);
+                home.putExtra("initID", getIntent().getIntExtra("initID", 0));
+                startActivity(home);
             }
         });
     }
@@ -170,6 +174,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
         message.append(" (Answer \"yes\" or \"no\" and then write comments please)");
         SmsManager sms = SmsManager.getDefault();
         List<String> messages = sms.divideMessage(message.getText().toString());
+//        ArrayList<String> times = new ArrayList<>();
         for (String phone : phones) {
             for (String msg : messages) {
                 PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
@@ -177,6 +182,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
                 sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
             }
         }
+//        i.putExtra("times", times);
     }
 
     public void onResume() {
@@ -223,6 +229,7 @@ public class SendMessagesActivity extends AppCompatActivity implements
         };
         registerReceiver(sentStatusReceiver, new IntentFilter("SMS_SENT"));
         registerReceiver(deliveredStatusReceiver, new IntentFilter("SMS_DELIVERED"));
+//        data.add(sentStatusReceiver.getResultData());
     }
 
     public void onPause() {

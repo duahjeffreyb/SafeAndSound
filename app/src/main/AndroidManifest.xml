@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:allowBackup="true"
@@ -15,14 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <receiver
-            android:name=".TheSmsReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-            </intent-filter>
-        </receiver>
         <activity
             android:name=".MainActivity"
             android:label="Safe and Sound"
@@ -33,26 +24,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignUpActivity"></activity>
-        <activity android:name=".SignInActivity"></activity>
-        <activity android:name=".HomeScreenActivity"></activity>
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".HomeScreenActivity" />
         <activity
             android:name=".BuildGroupActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".RemoveFromGroupActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".AddToGroupActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".CheckEventActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".CreateEventActivity"
-            android:windowSoftInputMode="adjustPan"></activity>
-        <activity android:name=".SendMessagesActivity"></activity>
-        <activity android:name=".StatusReportActivity"></activity>
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".SendMessagesActivity" />
+        <activity android:name=".StatusReportActivity" />
     </application>
 
 </manifest>

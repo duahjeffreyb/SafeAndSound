@@ -1,9 +1,12 @@
 package com.example.elizabethwhitebaker.safeandsound;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +17,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import static android.Manifest.permission.READ_CONTACTS;
 
 public class BuildGroupActivity extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
 //    private static final String TAG = "BuildGroupActivity";
+
+    private static final int CONTACTS = 1234;
 
     private DBHandler handler;
     private EditText groupNameET;
@@ -27,7 +35,8 @@ public class BuildGroupActivity extends AppCompatActivity implements
     private Spinner memberSpinner;
     private ConstraintLayout scrollView;
     private ArrayList<CheckBox> checkBoxes;
-    private ArrayList<String> memNames, contacts;
+    private ArrayList<String> memNames;
+//    private ArrayList<Member> contacts;
     private int initID;
 
     @Override
@@ -35,10 +44,17 @@ public class BuildGroupActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_build_group);
 
+        if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            int hasContactPermission = checkSelfPermission(READ_CONTACTS);
+            if(hasContactPermission != PackageManager.PERMISSION_GRANTED)
+                requestPermissions(new String[]{READ_CONTACTS}, CONTACTS);
+        }
+
         initID = getIntent().getIntExtra("initID", 0);
 
         checkBoxes = new ArrayList<>();
         memNames = new ArrayList<>();
+//        contacts = new ArrayList<>();
 
         groupNameET = findViewById(R.id.groupNameEditText);
 
@@ -154,6 +170,8 @@ public class BuildGroupActivity extends AppCompatActivity implements
     }
 
     private void loadSpinnerData() {
+//        getContactList();
+//        populateMembersTable();
         handler = new DBHandler(this);
         ArrayList<Member> ms = handler.getAllMembers();
         memNames.clear();
@@ -178,19 +196,36 @@ public class BuildGroupActivity extends AppCompatActivity implements
         memberSpinner.setAdapter(memberAdapter);
     }
 
-    private void getContactList() {
-        contacts = new ArrayList<>();
-        Cursor c = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null, null, null, null);
-        if (c != null) {
-            while(c.moveToNext()) {
-                String name = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                String phone = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                contacts.add(name + " : " + phone);
-            }
-            c.close();
-        }
-    }
+//    private void getContactList() {
+//        Cursor c = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+//                null, null, null, null);
+//        if (c != null) {
+//            while(c.moveToNext()) {
+//                String name = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+//                String phone = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                contacts.add(name + " : " + phone);
+//            }
+//            c.close();
+//        }
+//    }
+
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        if (requestCode == CONTACTS) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                Toast.makeText(getApplicationContext(), "Permission Granted, Now you can access sms", Toast.LENGTH_SHORT).show();
+//                getContactList();
+//            } else {
+//                Toast.makeText(getApplicationContext(), "Permission Denied, You cannot access and sms", Toast.LENGTH_SHORT).show();
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
+//                        requestPermissions(new String[]{READ_CONTACTS}, CONTACTS);
+//                    }
+//                }
+//            }
+//        } else {
+//            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        }
+//    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {

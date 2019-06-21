@@ -2,41 +2,28 @@ package com.example.elizabethwhitebaker.safeandsound;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-
-import static android.Manifest.permission.READ_SMS;
-
-// https://google-developer-training.github.io/android-developer-phone-sms-course/Lesson%202/2_p_2_sending_sms_messages.html
+import java.util.HashMap;
 
 public class StatusReportActivity extends AppCompatActivity {
 //    private static final String TAG = "StatusReportActivity";
-    private static final int REQUEST_READ_SMS = 1;
-    private static final String YES = "yes";
-    private static final String NO = "no";
     private int initID;
     private ArrayList<TextView> names;
     private ArrayList<TextView> statuses;
     protected ArrayList<TextView> responses;
     private ArrayList<ImageView> stopLights;
     private ConstraintLayout scrollView;
-    private ArrayList<String> phones, msgs;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -60,9 +47,7 @@ public class StatusReportActivity extends AppCompatActivity {
         stopLights = new ArrayList<>();
         names = new ArrayList<>();
 
-        ArrayList<ArrayList<String>> data = readSMS();
-        phones = data.get(0);
-        msgs = data.get(1);
+        HashMap<String, String> data = readSMS();
 
         DBHandler handler = new DBHandler(getApplicationContext());
 
@@ -77,52 +62,51 @@ public class StatusReportActivity extends AppCompatActivity {
             ms.add(m);
         }
 
-        comparePhones(numbersCompare);
-        getRawMessages(data);
+        HashMap<String, String> refinedData = comparePhones(data, numbersCompare);
 
         statusReport.setText("Status Report for " + eventName);
         groupName.setText("Responders from " + eventGroup + ":");
 
-        for(int i = 0; i < ms.size(); i++) {
-            String name = ms.get(i).getFirstName() + " " + ms.get(i).getLastName();
-            if(name.length() <= 15) {
-                int count = 0;
-                while (count < phones.size()) {
-                    if (ms.get(i).getPhoneNumber().equals(phones.get(count))) {
-                        if (msgs.get(count).toLowerCase().startsWith(YES)) {
-                            ms.get(i).setReplyStatus("GOOD");
-                            ms.get(i).setResponse(msgs.get(count));
-                            createResponseTextView(ms.get(i).getResponse().substring(4));
-                        } else if (msgs.get(count).toLowerCase().startsWith(NO)) {
-                            ms.get(i).setReplyStatus("BAD");
-                            ms.get(i).setResponse(msgs.get(count));
-                            createResponseTextView(ms.get(i).getResponse().substring(3));
-                        }
-                        count = phones.size();
-                    } else if (count == phones.size() - 1) {
-                        createResponseTextView(ms.get(i).getResponse());
-                    }
-                    count++;
-                }
-                count = 0;
-                while (count < phones.size()) {
-                    if (ms.get(i).getPhoneNumber().equals(phones.get(count))) {
-                        if (msgs.get(count).toLowerCase().startsWith(YES)) {
-                            createReplyStatusTextView("GOOD");
-                            createStopLightImageView("Green");
-                        } else if (msgs.get(count).toLowerCase().startsWith(NO)) {
-                            createReplyStatusTextView("BAD");
-                            createStopLightImageView("Red");
-                        }
-                        count = phones.size();
-                    } else if (count == phones.size() - 1) {
+        String[] phones = new String[refinedData.keySet().size()];
+        int i = 0;
+        for(String phone : refinedData.keySet()) {
+            phones[i] = phone;
+            i++;
+        }
+        for(Member m : ms) {
+            int count = 0;
+            while(count < refinedData.keySet().size()) {
+                String phone = phones[count];
+                String msg = refinedData.get(phone);
+                if (m.getPhoneNumber().equals(phone)) {
+                    if (msg.toLowerCase().startsWith("yes")) {
+                        m.setReplyStatus("GOOD");
+                        m.setResponse(msg);
+                        createResponseTextView(m.getResponse().substring(4));
+                        createReplyStatusTextView("GOOD");
+                        createStopLightImageView("Green");
+                    } else if (msg.toLowerCase().startsWith("no")) {
+                        m.setReplyStatus("BAD");
+                        m.setResponse(msg);
+                        createResponseTextView(m.getResponse().substring(3));
+                        createReplyStatusTextView("BAD");
+                        createStopLightImageView("Red");
+                    } else {
+                        m.setReplyStatus("UNK");
+                        m.setResponse(msg);
+                        createResponseTextView(m.getResponse());
                         createReplyStatusTextView("UNK");
                         createStopLightImageView("Yellow");
                     }
-                    count++;
+                    count = refinedData.keySet().size();
+                } else if (count == refinedData.keySet().size() - 1) {
+                    createResponseTextView(m.getResponse());
+                    createReplyStatusTextView("UNK");
+                    createStopLightImageView("Yellow");
                 }
-                createMemberNameTextView(name);
+                count++;
             }
+            createMemberNameTextView(m.getFirstName() + " " + m.getLastName());
         }
 
         btnGoBack.setOnClickListener(new View.OnClickListener() {
@@ -135,48 +119,84 @@ public class StatusReportActivity extends AppCompatActivity {
         });
     }
 
-    private ArrayList<ArrayList<String>> readSMS() {
-        ArrayList<ArrayList<String>> data = new ArrayList<>();
+    private HashMap<String, String> readSMS() {
+//        HashMap<String, String> phoneMsgData = new HashMap<>();
+//        HashMap<String, Integer> phoneTimeData = new HashMap<>();
+        HashMap<String, String> data = new HashMap<>();
         Cursor c = getContentResolver().query(Uri.parse("content://sms/inbox"),
                 null, null, null, null);
         if (c != null && c.moveToFirst()) {
-            phones = new ArrayList<>();
-            msgs = new ArrayList<>();
-            for(int i = 0; i < c.getColumnCount(); i++) {
-                if (c.getColumnName(i).equalsIgnoreCase("address"))
-                    phones.add(c.getString(i));
-                else if(c.getColumnName(i).equalsIgnoreCase("body"))
-                    msgs.add(c.getString(i));
-            }
-            c.close();
-            data.add(phones);
-            data.add(msgs);
+            do {
+                String phone = "";
+                String msg = "";
+//                int timeSent = 0;
+                boolean isSame = false;
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    if (c.getColumnName(i).equalsIgnoreCase("address"))
+                        phone = c.getString(i);
+                    else if (c.getColumnName(i).equalsIgnoreCase("body"))
+                        msg = c.getString(i);
+//                    else if (c.getColumnName(i).equalsIgnoreCase("date_sent"))
+//                        timeSent = c.getInt(i);
+                }
+                if (data.containsKey(phone))
+                    isSame = true;
+                if (!phone.isEmpty() && !msg.isEmpty() && !isSame) {
+                    data.put(phone, msg);
+//                    if (timeSent > 0)
+//                        phoneTimeData.put(phone, timeSent);
+                }
+            } while(c.moveToNext());
         }
+//        c = getContentResolver().query(Uri.parse("content://sms/sent"),
+//                null, null, null, null);
+//        if(c != null && c.moveToFirst()) {
+//            do {
+//                StringBuilder msg = new StringBuilder();
+//                for(int i = 0; i < c.getColumnCount(); i++)
+//                    msg.append(c.getColumnName(i)).append(":").append(c.getString(i)).append(" ");
+//                System.out.println(msg.toString());
+//            }while(c.moveToNext());
+//        }
+//        if(c != null && c.moveToFirst()) {
+//            do {
+//                Integer timeSent = 0;
+//                boolean isSame = false;
+//                if (isFirst) {
+//                    c.moveToFirst();
+//                    isFirst = false;
+//                }
+//                for (int i = 0; i < c.getColumnCount(); i++) {
+//                    if (c.getColumnName(i).equalsIgnoreCase("address"))
+//                        phone = c.getString(i);
+//                    else if (c.getColumnName(i).equalsIgnoreCase("body"))
+//                        msg = c.getString(i);
+//                }
+//                if (phoneMsgData.containsKey(phone))
+//                    isSame = true;
+//                if (!phone.isEmpty() && !msg.isEmpty() && !isSame) {
+//                    phoneMsgData.put(phone, msg);
+//                    phones.add(phone);
+//                }
+//            } while(c.moveToNext());
+//        }
+        if(c != null)
+            c.close();
         return data;
     }
 
-    private void comparePhones(ArrayList<String> numCompares) {
-        for (String numCompare : numCompares)
-            for (String phone : phones)
-                if (numCompare.equals(phone))
-                    phones.add(numCompare);
-        for(int i = 0; i < phones.size(); i++)
-            for(int j = 0; j < phones.size(); j++)
-                if(phones.get(i).equals(phones.get(j)) && i != j)
-                    //noinspection SuspiciousListRemoveInLoop
-                    phones.remove(j);
-    }
-
-    private void getRawMessages(ArrayList<ArrayList<String>> data) {
-        for(int i = 0; i < phones.size(); i++)
-            for(int j = 0; j < phones.size(); j++)
-                if(data.get(0).get(i).equals(phones.get(j)))
-                    msgs.add(data.get(1).get(i));
-        for(int i = 0; i < msgs.size(); i++)
-            for(int j = 0; j < msgs.size(); j++)
-                if(msgs.get(i).equals(msgs.get(j)) && i != j)
-                    //noinspection SuspiciousListRemoveInLoop
-                    msgs.remove(j);
+    private HashMap<String, String> comparePhones(HashMap<String, String> data, ArrayList<String> numCompares) {
+        for (String num : data.keySet()) {
+            int count = 0;
+            while (count < numCompares.size()) {
+                if (num.contains(numCompares.get(count)))
+                    count = numCompares.size();
+                else if (count == numCompares.size() - 1)
+                    data.remove(num);
+                count++;
+            }
+        }
+        return data;
     }
 
     private void createResponseTextView(String memberResponse) {
@@ -254,9 +274,6 @@ public class StatusReportActivity extends AppCompatActivity {
         if(color.equalsIgnoreCase("green"))
             set.connect(stopLight.getId(), ConstraintSet.RIGHT,
                     statuses.get(stopLights.size()).getId(), ConstraintSet.LEFT, 8);
-        else if(color.equalsIgnoreCase("yellow"))
-            set.connect(stopLight.getId(), ConstraintSet.RIGHT,
-                    statuses.get(stopLights.size()).getId(), ConstraintSet.LEFT, 48);
         else
             set.connect(stopLight.getId(), ConstraintSet.RIGHT,
                     statuses.get(stopLights.size()).getId(), ConstraintSet.LEFT, 48);
