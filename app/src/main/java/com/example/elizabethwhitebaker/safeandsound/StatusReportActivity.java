@@ -148,6 +148,7 @@ public class StatusReportActivity extends AppCompatActivity {
                 }
             } while(c.moveToNext());
         }
+//        HashMap<String, String> data = new HashMap<>();
 //        c = getContentResolver().query(Uri.parse("content://sms/sent"),
 //                null, null, null, null);
 //        if(c != null && c.moveToFirst()) {

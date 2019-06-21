@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,7 +28,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static android.Manifest.permission.SEND_SMS;
 
@@ -174,12 +180,15 @@ public class SendMessagesActivity extends AppCompatActivity implements
         message.append(" (Answer \"yes\" or \"no\" and then write comments please)");
         SmsManager sms = SmsManager.getDefault();
         List<String> messages = sms.divideMessage(message.getText().toString());
+//        Uri sentMail = Uri.parse("content://sms/sent");
+//        sentMail.
 //        ArrayList<String> times = new ArrayList<>();
         for (String phone : phones) {
             for (String msg : messages) {
                 PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
                 PendingIntent deliveredIntent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_DELIVERED"), 0);
                 sms.sendTextMessage(phone, null, msg, sentIntent, deliveredIntent);
+//                String time = android.content.
             }
         }
 //        i.putExtra("times", times);
